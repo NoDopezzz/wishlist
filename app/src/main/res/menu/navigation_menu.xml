@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_item_movie"
+        android:title="@string/item_movie"
+        android:icon="@drawable/ic_movie"/>
+
+    <item
+        android:id="@+id/navigation_item_tv"
+        android:title="@string/item_tv"
+        android:icon="@drawable/ic_tv"/>
+
+    <item
+        android:id="@+id/navigation_item_book"
+        android:title="@string/item_book"
+        android:icon="@drawable/ic_book"/>
+
+</menu>

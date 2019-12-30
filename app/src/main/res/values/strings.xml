@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Wish List</string>
+
+    <string name="item_movie">Фильмы</string>
+    <string name="item_tv">Сериалы</string>
+    <string name="item_book">Книги</string>
 </resources>
