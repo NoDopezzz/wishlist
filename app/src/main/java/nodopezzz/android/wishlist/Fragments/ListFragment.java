@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+
+import nodopezzz.android.wishlist.R;
+import nodopezzz.android.wishlist.TMDBAPI;
 
 public class ListFragment extends Fragment {
 

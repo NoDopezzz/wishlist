@@ -32,4 +32,56 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <RelativeLayout
+        android:id="@+id/search_progress_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/search_empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="150dp">
+        <ImageView
+            android:id="@+id/loupe_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/loupe"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#7F7F7F"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/loupe_image"
+
+            android:text="Введите запрос"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/nothing_found_search_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="150dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="#7F7F7F"
+            android:layout_centerInParent="true"
+            android:layout_margin="80dp"
+            android:textAlignment="center"
+
+            android:text="По вашему запросу ничего не найдено"/>
+
+    </RelativeLayout>
+
 </LinearLayout>

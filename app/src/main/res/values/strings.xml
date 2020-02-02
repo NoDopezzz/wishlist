@@ -4,4 +4,7 @@
     <string name="item_movie">Фильмы</string>
     <string name="item_tv">Сериалы</string>
     <string name="item_book">Книги</string>
+
+    <string name="content_pictures">Кадры:</string>
+    <string name="content_cast">Актеры:</string>
 </resources>

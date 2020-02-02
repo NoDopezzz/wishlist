@@ -8,17 +8,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import nodopezzz.android.wishlist.Models.Actor;
+import nodopezzz.android.wishlist.Models.Movie;
+import nodopezzz.android.wishlist.Models.SearchItem;
+import nodopezzz.android.wishlist.Network.UrlDownloader;
 
 public class TMDBAPI {
     private static final String TAG = "TMDBAPI";
 
     private static final String API_KEY = "23c8bc74a45d2a77180c84c78e5cbccb";
     private static final Uri ENDPOINT = Uri.parse("https://api.themoviedb.org/3");
-    private static final String IMAGE_URL_ENDPOINT = "https://image.tmdb.org/t/p/w1280";
+    private static final String IMAGE_URL_ENDPOINT_THUMBNAIL = "https://image.tmdb.org/t/p/w260_and_h390_bestv2";
+    private static final String IMAGE_URL_ENDPOINT_ORIGINAL = "https://image.tmdb.org/t/p/original";
+    private static final String YOUTUBE_ENDPOINT = "https://www.youtube.com/watch?v=";
 
     private static final String METHOD_SEARCH = "search";
+    private static final String METHOD_MOVIE = "movie";
+    private static final String METHOD_IMAGES = "images";
+    private static final String METHOD_CREDITS = "credits";
+    private static final String METHOD_VIDEO = "videos";
 
     public static final String CONTENT_MOVIE = "movie";
     public static final String CONTENT_TV = "tv";
@@ -39,11 +53,19 @@ public class TMDBAPI {
         try {
             String response = UrlDownloader.getResponse(sUrl);
             JSONArray array = new JSONObject(response).getJSONArray("results");
+            int totalPage = new JSONObject(response).getInt("total_pages");
+            if(page > totalPage){
+                return null;
+            }
+
             for (int i = 0; i < array.length(); i++){
                 SearchItem item = parseSearchItem(array.getJSONObject(i), content);
                 if(item != null) {
                     result.add(item);
                 }
+            }
+            if(page < totalPage){
+                result.add(null);
             }
 
         } catch (IOException | JSONException e) {
@@ -52,20 +74,212 @@ public class TMDBAPI {
         return result;
     }
 
+    public static Movie getMovie(String id){
+        String sUrl = ENDPOINT.buildUpon()
+                .appendPath(METHOD_MOVIE)
+                .appendPath(id)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("language", "ru")
+                .build().toString();
+
+        try{
+            String response = UrlDownloader.getResponse(sUrl);
+            JSONObject object = new JSONObject(response);
+            return parseMovie(object);
+        } catch(IOException | JSONException e){
+            return null;
+        }
+    }
+
+    private static List<String> getImages(String id){
+        String url = ENDPOINT.buildUpon()
+                .appendPath(METHOD_MOVIE)
+                .appendPath(id)
+                .appendPath(METHOD_IMAGES)
+                .appendQueryParameter("api_key", API_KEY)
+                .build().toString();
+        try {
+            String response = UrlDownloader.getResponse(url);
+            return parseImages(new JSONObject(response));
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static List<Actor> getActors(String id){
+        String url = ENDPOINT.buildUpon()
+                .appendPath(METHOD_MOVIE)
+                .appendPath(id)
+                .appendPath(METHOD_CREDITS)
+                .appendQueryParameter("api_key", API_KEY)
+                .build().toString();
+        try {
+            String response = UrlDownloader.getResponse(url);
+            JSONObject object = new JSONObject(response);
+            return parseCast(object);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String getVideo(String id, String language){
+        String url = ENDPOINT.buildUpon()
+                .appendPath(METHOD_MOVIE)
+                .appendPath(id)
+                .appendPath(METHOD_VIDEO)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("language", language)
+                .build().toString();
+        try {
+            String response = UrlDownloader.getResponse(url);
+            JSONObject object = new JSONObject(response);
+            return parseVideo(object);
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String parseVideo(JSONObject object) throws JSONException{
+        JSONArray array = object.getJSONArray("results");
+        for (int i = 0; i < array.length(); i++){
+            if(array.getJSONObject(i).getString("type").equals("Trailer") &&
+                    array.getJSONObject(i).getString("site").equals("YouTube")){
+                return array.getJSONObject(i).getString("key");
+            }
+        }
+        return null;
+    }
+
+    private static List<Actor> parseCast(JSONObject object) throws JSONException{
+        List<Actor> actors = new ArrayList<>();
+
+        JSONArray array = object.getJSONArray("cast");
+        for (int i = 0; i < (array.length() > 10 ? 10 : array.length()); i++){
+            Actor actor = new Actor();
+            String character = array.getJSONObject(i).getString("character");
+            String id = array.getJSONObject(i).getString("id");
+            String name = array.getJSONObject(i).getString("name");
+            String urlProfilePhoto = IMAGE_URL_ENDPOINT_ORIGINAL + array.getJSONObject(i).getString("profile_path");
+
+            actor.setCharacterName(character);
+            actor.setId(id);
+            actor.setName(name);
+            actor.setUrlProfilePhoto(urlProfilePhoto);
+
+            actors.add(actor);
+        }
+
+        return actors;
+    }
+
+    private static List<String> parseImages(JSONObject object) throws JSONException{
+        List<String> result = new ArrayList<>();
+
+        JSONArray array = object.getJSONArray("backdrops");
+        if(array.length() > 1) {
+            for (int i = 1; i < (array.length() > 6 ? 6 : array.length()); i++) {
+                result.add(IMAGE_URL_ENDPOINT_ORIGINAL + array.getJSONObject(i).getString("file_path"));
+            }
+        }
+
+        return result;
+    }
+
+    private static Movie parseMovie(JSONObject object) throws JSONException{
+        Movie movie = new Movie();
+        String id = object.getString("id");
+        String title = object.getString("title");
+        String overview = object.getString("overview");
+        String voteAverage = object.getString("vote_average");
+        String voteCount = object.getString("vote_count");
+        String urlBackground = "";
+        if(object.isNull("backdrop_path")){
+            urlBackground = IMAGE_URL_ENDPOINT_ORIGINAL + object.getString("poster_path");;
+        } else {
+            urlBackground = IMAGE_URL_ENDPOINT_ORIGINAL + object.getString("backdrop_path");
+        }
+        String time = object.getString("runtime");
+        String urlPoster = IMAGE_URL_ENDPOINT_ORIGINAL + object.getString("poster_path");
+
+        String date = object.getString("release_date");
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date parseDate = ft.parse(date);
+            date = String.format("%te %<tB %<tY", parseDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        JSONArray arrayGenres = object.getJSONArray("genres");
+        List<String> genres = new ArrayList<>();
+        for (int i = 0; i < arrayGenres.length(); i++){
+            genres.add(arrayGenres.getJSONObject(i).getString("name"));
+        }
+
+        JSONArray arrayCountries = object.getJSONArray("production_countries");
+        List<String> countries = new ArrayList<>();
+        for (int i = 0; i < arrayCountries.length(); i++){
+            countries.add(arrayCountries.getJSONObject(i).getString("name"));
+        }
+
+        List<String> images = getImages(id);
+        List<Actor> actors = getActors(id);
+
+        String urlVideo = getVideo(id, "ru");
+        if(urlVideo == null){
+            urlVideo = getVideo(id, "");
+        }
+
+        movie.setCast(actors);
+        movie.setCountries(countries);
+        movie.setDate(date);
+        movie.setGenres(genres);
+        movie.setOverview(overview);
+        movie.setTitle(title);
+        movie.setUrlBackground(urlBackground);
+        movie.setUrlImages(images);
+        movie.setYoutubeId(urlVideo);
+        movie.setVoteAverage(voteAverage);
+        movie.setVoteCount(voteCount);
+        movie.setId(id);
+        movie.setTime(time);
+        movie.setUrlPoster(urlPoster);
+
+        return movie;
+    }
+
     private static SearchItem parseSearchItem(JSONObject jsonObject, String content){
         SearchItem searchItem = new SearchItem();
         searchItem.setContent(content);
         try {
-            searchItem.setDate(jsonObject.getString("release_date"));
             searchItem.setId(jsonObject.getString("id"));
-            searchItem.setImageUrl(IMAGE_URL_ENDPOINT + jsonObject.getString("poster_path"));
-            searchItem.setTitle(jsonObject.getString("title"));
+            searchItem.setImageUrl(IMAGE_URL_ENDPOINT_THUMBNAIL + jsonObject.getString("poster_path"));
             searchItem.setOverview(jsonObject.getString("overview"));
+            String date = "";
+            if(content.equals(CONTENT_TV)) {
+                date = jsonObject.getString("first_air_date");
+                searchItem.setTitle(jsonObject.getString("name"));
+            } else if(content.equals(CONTENT_MOVIE)) {
+                date = jsonObject.getString("release_date");
+                searchItem.setTitle(jsonObject.getString("title"));
+            }
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date parseDate = ft.parse(date);
+                date = String.format("%te %<tB %<tY", parseDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            searchItem.setDate(date);
+
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
         }
-
+        Log.i(TAG, searchItem.toString());
         return searchItem;
     }
 

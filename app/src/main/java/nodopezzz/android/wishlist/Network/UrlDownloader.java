@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.Network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
