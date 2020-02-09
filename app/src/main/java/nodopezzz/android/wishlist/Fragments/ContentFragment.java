@@ -2,16 +2,22 @@ package nodopezzz.android.wishlist.Fragments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,13 +30,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 import com.smarteist.autoimageslider.SliderView;
 
 import java.io.IOException;
 
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
+import bg.devlabs.fullscreenvideoview.FullscreenVideoView;
 import nodopezzz.android.wishlist.Adapters.CastListAdapter;
 import nodopezzz.android.wishlist.Adapters.TVSeasonsListAdapter;
 import nodopezzz.android.wishlist.Models.MediaContent;
@@ -80,7 +87,7 @@ public class ContentFragment extends Fragment {
     private LinearLayout mPicturesFrame;
     private LinearLayout mCastFrame;
 
-    private YouTubePlayerView mYoutubePlayer;
+    private FullscreenVideoView mVideoPlayer;
     private SliderView mPicturesSlider;
     private PicturesSliderAdapter mPicturesSliderAdapter;
 
@@ -129,8 +136,7 @@ public class ContentFragment extends Fragment {
         mNestedScrollView = v.findViewById(R.id.content_nestedscrollview);
         mProgressBarLayout = v.findViewById(R.id.content_progressbar);
 
-        mYoutubePlayer = v.findViewById(R.id.content_video_player);
-        getActivity().getLifecycle().addObserver(mYoutubePlayer);
+        mVideoPlayer = v.findViewById(R.id.content_video_player);
 
         mPicturesSlider = v.findViewById(R.id.content_pictures_slider);
 
@@ -154,23 +160,37 @@ public class ContentFragment extends Fragment {
         mPicturesSlider.setSliderAdapter(mPicturesSliderAdapter);
     }
 
-    private void initYouTubePlayer(){
-        if(mContentItem.getYoutubeId() == null){
-            mYoutubePlayer.setVisibility(View.GONE);
-        } else {
-            mYoutubePlayer.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
-                @Override
-                public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-                    String videoId = mContentItem.getYoutubeId();
-                    youTubePlayer.cueVideo(videoId, 0);
-                    Log.i(TAG, videoId);
+    private void setupVideoPlayer(){
+        new YouTubeExtractor(getActivity()) {
+            @Override
+            public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+                if (ytFiles != null) {
+                    int[] itag = new int[]{22, 18, 37, 136, 135, 137, 134, 133};
+                    boolean noVideo = true;
+                    for (int i = 0; i < itag.length; i++) {
+                        if (ytFiles.get(itag[i]) != null) {
+                            Log.i(TAG, ytFiles.get(itag[i]).getUrl());
+                            String url = ytFiles.get(itag[i]).getUrl();
+                            initVideoPlayer(url);
+                            noVideo = false;
+                            break;
+                        }
+                    }
+                    if(noVideo){
+                        Log.i(TAG, "true");
+                        mVideoPlayer.setVisibility(View.GONE);
+                    }
+                } else{
+                    mVideoPlayer.setVisibility(View.GONE);
                 }
-            });
-            mYoutubePlayer.getPlayerUiController()
-                    .showMenuButton(false)
-                    .showVideoTitle(false)
-                    .showYouTubeButton(false);
-        }
+            }
+        }.extract(mContentItem.getYoutubeUrl(), true, true);
+    }
+
+    private void initVideoPlayer(String url){
+        mVideoPlayer.videoUrl(url);
+        mVideoPlayer.hideFullscreenButton();
+
     }
 
     private void initToolbar(String title){
@@ -284,7 +304,7 @@ public class ContentFragment extends Fragment {
             updateUITV();
         }
 
-        initYouTubePlayer();
+        setupVideoPlayer();
         initSlider();
         initToolbar(mContentItem.getTitle());
         initCastList();

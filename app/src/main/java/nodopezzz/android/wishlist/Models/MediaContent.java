@@ -16,7 +16,7 @@ public class MediaContent {
     protected List<String> mGenres;
 
     protected List<String> mUrlImages;
-    protected String mYoutubeId;
+    protected String mYoutubeUrl;
     protected List<Actor> mCast;
 
     public String getTitle() {
@@ -67,12 +67,12 @@ public class MediaContent {
         mGenres = genres;
     }
 
-    public String getYoutubeId() {
-        return mYoutubeId;
+    public String getYoutubeUrl() {
+        return mYoutubeUrl;
     }
 
-    public void setYoutubeId(String youtubeId) {
-        mYoutubeId = youtubeId;
+    public void setYoutubeUrl(String youtubeUrl) {
+        mYoutubeUrl = youtubeUrl;
     }
 
     public List<Actor> getCast() {

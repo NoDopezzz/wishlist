@@ -30,6 +30,7 @@ public class TMDBAPI {
     private static final Uri ENDPOINT = Uri.parse("https://api.themoviedb.org/3");
     private static final String IMAGE_URL_ENDPOINT_THUMBNAIL = "https://image.tmdb.org/t/p/w260_and_h390_bestv2";
     private static final String IMAGE_URL_ENDPOINT_ORIGINAL = "https://image.tmdb.org/t/p/original";
+    private static final String YOUTUBE_ENDPOINT = "https://www.youtube.com/watch";
 
     private static final String METHOD_SEARCH = "search";
     private static final String METHOD_IMAGES = "images";
@@ -202,7 +203,7 @@ public class TMDBAPI {
         for (int i = 0; i < array.length(); i++){
             if(array.getJSONObject(i).getString("type").equals("Trailer") &&
                     array.getJSONObject(i).getString("site").equals("YouTube")){
-                return array.getJSONObject(i).getString("key");
+                return YOUTUBE_ENDPOINT + "?v=" + array.getJSONObject(i).getString("key");
             }
         }
         return null;
@@ -296,7 +297,7 @@ public class TMDBAPI {
         tvShow.setTitle(title);
         tvShow.setUrlBackground(urlBackground);
         tvShow.setUrlImages(images);
-        tvShow.setYoutubeId(urlVideo);
+        tvShow.setYoutubeUrl(urlVideo);
         tvShow.setVoteAverage(voteAverage);
         tvShow.setVoteCount(voteCount);
         tvShow.setId(id);
@@ -375,7 +376,7 @@ public class TMDBAPI {
         movie.setTitle(title);
         movie.setUrlBackground(urlBackground);
         movie.setUrlImages(images);
-        movie.setYoutubeId(urlVideo);
+        movie.setYoutubeUrl(urlVideo);
         movie.setVoteAverage(voteAverage);
         movie.setVoteCount(voteCount);
         movie.setId(id);
