@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/episode_item_cardview"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_margin="10dp"
+        card_view:cardElevation="5dp"
+        card_view:cardCornerRadius="4dp">
+        <ImageView
+            android:id="@+id/episode_item_image"
+            android:layout_width="100dp"
+            android:layout_height="75dp"
+            android:layout_centerInParent="true"
+            android:scaleType="centerCrop"/>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/episode_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+
+        android:layout_margin="10dp"
+        android:textSize="18sp"
+        android:ellipsize="end"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.SearchResult.Title"
+        android:layout_marginBottom="10dp"
+        android:layout_toEndOf="@id/episode_item_cardview"
+        android:maxLines="2"
+        android:layout_toStartOf="@id/episode_item_arrow"/>
+
+    <ImageView
+        android:id="@+id/episode_item_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+        android:layout_margin="10dp"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>

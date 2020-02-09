@@ -222,8 +222,19 @@ public class SearchFragment extends Fragment {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
+                hideKeyboard();
+
+                mQuery = query;
+                mAsyncTaskGetSearchResult.cancel(true);
+                if(!mQuery.equals("")) {
+                    mPage = 1;
+                    mSearchItems.clear();
+                    mAsyncTaskGetSearchResult = new GetSearchResult();
+                    mAsyncTaskGetSearchResult.execute(mQuery);
+                } else{
+                    mCurrentState = State.EMPTY;
+                    updateUI();
+                }
                 return true;
             }
 
@@ -253,6 +264,11 @@ public class SearchFragment extends Fragment {
                 new GetSearchResult().execute(mQuery);
             }
         });
+    }
+
+    private void hideKeyboard(){
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mSearchView.getWindowToken(), 0);
     }
 
     private void updateUI(){

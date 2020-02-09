@@ -151,6 +151,122 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/content_movie_extra"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/budget"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/revenue"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/content_budget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                    <TextView
+                        android:id="@+id/content_revenue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_tvshow_extra"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/status"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/seasons_number"
+                        android:textColor="@android:color/black"
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/content_tvshow_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                    <TextView
+                        android:id="@+id/content_tvshow_numberseasons"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:textSize="16sp"
+                        android:lineSpacingExtra="10dp"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
             <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
                 android:id="@+id/content_video_player"
                 android:layout_width="match_parent"
@@ -172,6 +288,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
                 app:maxCollapsedLines="5"
                 app:animDuration="400">
 
@@ -194,6 +311,30 @@
                     android:layout_gravity="right|bottom"
                     android:background="@android:color/transparent"/>
             </com.ms.square.android.expandabletextview.ExpandableTextView>
+
+            <LinearLayout
+                android:id="@+id/content_seasons_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="30dp"
+                    android:text="@string/content_seasons"
+
+                    android:textColor="@android:color/black"
+                    android:textSize="22sp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/content_seasons_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:background="@android:color/transparent"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/content_pictures_layout"

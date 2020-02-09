@@ -70,6 +70,8 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
         private TextView mCharacterView;
         private TextView mNameActorView;
 
+        private Actor mActor;
+
         public CastHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -79,13 +81,17 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
         }
 
         public void bindView(Actor actor){
+            mActor = actor;
 
             mCharacterView.setText(actor.getCharacterName());
             mNameActorView.setText(actor.getName());
 
             if(mIconCache.getBitmapFromMemory(actor.getUrlProfilePhoto()) == null){
-                mThumbnailDownloader.queueMessage(actor.getUrlProfilePhoto(), this);
-                //TODO Holder
+                if(!actor.getUrlProfilePhoto().equals("")){
+                    mThumbnailDownloader.queueMessage(actor.getUrlProfilePhoto(), this);
+                } else{
+                    mImageActorView.setImageResource(R.drawable.placeholder_person);
+                }
             } else{
                 bindImage(mIconCache.getBitmapFromMemory(actor.getUrlProfilePhoto()));
             }

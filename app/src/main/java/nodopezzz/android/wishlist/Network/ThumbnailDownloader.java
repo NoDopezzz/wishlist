@@ -54,12 +54,8 @@ public class ThumbnailDownloader<T> extends HandlerThread {
     }
 
     public void queueMessage(String url, T target){
-        if(url == null){
-            mMap.remove(target);
-        } else {
-            mMap.put(target, url);
-            mRequestHandler.obtainMessage(MESSAGE_CODE, target).sendToTarget();
-        }
+        mMap.put(target, url);
+        mRequestHandler.obtainMessage(MESSAGE_CODE, target).sendToTarget();
     }
 
     private void handle(final T target){

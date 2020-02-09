@@ -37,4 +37,9 @@ public class Actor {
     public void setId(String id) {
         mId = id;
     }
+
+    @Override
+    public String toString(){
+        return mName + " - " + mUrlProfilePhoto;
+    }
 }
