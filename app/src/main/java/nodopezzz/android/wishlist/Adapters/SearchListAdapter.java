@@ -18,6 +18,7 @@ import java.util.List;
 
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.GoogleBooksAPI;
 import nodopezzz.android.wishlist.IconCache;
 import nodopezzz.android.wishlist.Models.Book;
@@ -40,7 +41,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
         mContext = context;
         mSearchItems = searchItems;
 
-        mIconCache = IconCache.get(mContext);
+        mIconCache = GeneralSingleton.getInstance().getIconCache();
         mThumbnailDownloader = new ThumbnailDownloader<>("ThumbnailDownloader", new Handler());
         mThumbnailDownloader.setListener(new ThumbnailDownloader.DownloadedListener<SearchListAdapter.SearchItemHolder>() {
             @Override

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.IconCache;
 import nodopezzz.android.wishlist.Models.Actor;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
@@ -34,7 +35,7 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
         mContext = context;
         mActors = actors;
 
-        mIconCache = IconCache.get(mContext);
+        mIconCache = GeneralSingleton.getInstance().getIconCache();
         mThumbnailDownloader = new ThumbnailDownloader<>("ThumbnailDownloader", new Handler());
         mThumbnailDownloader.setListener(new ThumbnailDownloader.DownloadedListener<CastHolder>() {
             @Override

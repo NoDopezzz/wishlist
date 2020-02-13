@@ -15,6 +15,7 @@ import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.List;
 
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.IconCache;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
@@ -31,7 +32,7 @@ public class PicturesSliderAdapter extends SliderViewAdapter<PicturesSliderAdapt
     public PicturesSliderAdapter(Context context, List<String> pictures){
         mPictures = pictures;
         mContext = context;
-        mIconCache = IconCache.get(mContext);
+        mIconCache = GeneralSingleton.getInstance().getIconCache();
 
         mThumbnailDownloader = new ThumbnailDownloader<>("ThumbnailDownloader", new Handler());
         mThumbnailDownloader.setListener(new ThumbnailDownloader.DownloadedListener<PicturesSliderAdapter.PictureHolder>() {

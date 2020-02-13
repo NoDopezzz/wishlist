@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.IconCache;
 import nodopezzz.android.wishlist.R;
 
@@ -52,8 +53,8 @@ public class EpisodeDialogFragment extends DialogFragment {
         mTitleView.setText(title);
         mOverviewView.setText(overview);
         mImageView.setImageResource(R.drawable.placeholder_image_not_found);
-        if(IconCache.get(getActivity()).getBitmapFromMemory(imageUrl) != null){
-            mImageView.setImageBitmap(IconCache.get(getActivity()).getBitmapFromMemory(imageUrl));
+        if(GeneralSingleton.getInstance().getIconCache().getBitmapFromMemory(imageUrl) != null){
+            mImageView.setImageBitmap(GeneralSingleton.getInstance().getIconCache().getBitmapFromMemory(imageUrl));
         }
 
         return new AlertDialog.Builder(getActivity()).setView(v).create();

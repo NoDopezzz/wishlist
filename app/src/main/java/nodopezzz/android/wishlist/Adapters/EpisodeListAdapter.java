@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeDialogFragment;
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.IconCache;
 import nodopezzz.android.wishlist.Models.Episode;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
@@ -37,7 +38,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
         mEpisodes = episodes;
         mTargetFragment = fragment;
 
-        mIconCache = IconCache.get(mContext);
+        mIconCache = GeneralSingleton.getInstance().getIconCache();
         mThumbnailDownloader = new ThumbnailDownloader<>("EpisodeHolder", new Handler());
         mThumbnailDownloader.setListener(new ThumbnailDownloader.DownloadedListener<EpisodeHolder>() {
             @Override
