@@ -112,4 +112,8 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
             dialogFragment.show(mFragment.getFragmentManager(), "EpisodeListDialogFragment");
         }
     }
+
+    public void clear(){
+        mThumbnailDownloader.clearQueue();
+    }
 }

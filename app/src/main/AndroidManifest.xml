@@ -15,7 +15,7 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.ContentActivity"
+            android:name=".Activities.ContentMediaActivity"
             android:theme="@style/ContentActivityTheme"
             />
         <activity android:name=".Activities.MainActivity">
@@ -25,6 +25,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Activities.ContentBookActivity"
+            android:theme="@style/ContentActivityTheme"/>
     </application>
 
 </manifest>

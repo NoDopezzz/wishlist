@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import nodopezzz.android.wishlist.Fragments.ListFragment;
+import nodopezzz.android.wishlist.GoogleBooksAPI;
 import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.TMDBAPI;
 
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                         content = TMDBAPI.CONTENT_TV;
                         break;
                     case R.id.navigation_item_book:
-                        content = TMDBAPI.CONTENT_MOVIE;
+                        content = GoogleBooksAPI.CONTENT_BOOKS;
                         break;
                     default:
                         return false;

@@ -125,4 +125,8 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
             fragment.show(mTargetFragment.getFragmentManager(), "EpisodeDialogFragment");
         }
     }
+
+    public void clear(){
+        mThumbnailDownloader.clearQueue();
+    }
 }

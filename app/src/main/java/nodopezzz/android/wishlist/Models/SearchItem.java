@@ -1,12 +1,18 @@
 package nodopezzz.android.wishlist.Models;
 
+import android.content.Context;
+
+import nodopezzz.android.wishlist.Activities.ContentBookActivity;
+import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
+import nodopezzz.android.wishlist.GoogleBooksAPI;
+
 public class SearchItem {
 
     private String mId;
     private String mTitle;
-    private String mDate;
+    private String mSubtitle;
     private String mOverview;
-    private String mImageUrl;
+    private String mThumbnailUrl;
 
     private String mContent;
 
@@ -27,12 +33,12 @@ public class SearchItem {
         mTitle = title;
     }
 
-    public String getDate() {
-        return mDate;
+    public String getSubtitle() {
+        return mSubtitle;
     }
 
-    public void setDate(String date) {
-        mDate = date;
+    public void setSubtitle(String subtitle) {
+        mSubtitle = subtitle;
     }
 
     public String getOverview() {
@@ -43,12 +49,12 @@ public class SearchItem {
         mOverview = overview;
     }
 
-    public String getImageUrl() {
-        return mImageUrl;
+    public String getThumbnailUrl() {
+        return mThumbnailUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        mImageUrl = imageUrl;
+    public void setThumbnailUrl(String thumbnailUrl) {
+        mThumbnailUrl = thumbnailUrl;
     }
 
     public String getContent() {
@@ -59,8 +65,17 @@ public class SearchItem {
         mContent = content;
     }
 
+    public void onClickSearchItem(Context context){
+        if(mContent.equals(GoogleBooksAPI.CONTENT_BOOKS)){
+            context.startActivity(ContentBookActivity.newInstance(context, mId, mTitle));
+        } else {
+            context.startActivity(ContentMediaActivity.newInstance(context, mContent, mId, mTitle));
+        }
+
+    }
+
     @Override
     public String toString(){
-        return mTitle + " " + mDate;
+        return mTitle + " " + mSubtitle;
     }
 }

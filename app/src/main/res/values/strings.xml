@@ -9,6 +9,9 @@
     <string name="content_cast">Актеры:</string>
     <string name="content_seasons">Сезоны:</string>
 
+    <string name="content_book_date">Издание </string>
+    <string name="content_book_button_reader">Читать фрагмент</string>
+
     <string name="budget">Бюджет:</string>
     <string name="revenue">Сборы:</string>
 
@@ -16,4 +19,6 @@
     <string name="seasons_number">Сезонов:</string>
 
     <string name="episode_list_nothing">Ничего не найдено</string>
+
+    <string name="content_book_menu_marker">Сохранить</string>
 </resources>

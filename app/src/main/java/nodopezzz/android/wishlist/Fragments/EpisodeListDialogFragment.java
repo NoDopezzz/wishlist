@@ -49,6 +49,7 @@ public class EpisodeListDialogFragment extends DialogFragment {
     private TextView mNothingView;
 
     private List<Episode> mEpisodes;
+    private EpisodeListAdapter mEpisodeAdapter;
 
     @NonNull
     @Override
@@ -92,15 +93,23 @@ public class EpisodeListDialogFragment extends DialogFragment {
 
         LinearLayoutManager linearLayoutManager =
                 new LinearLayoutManager(getActivity());
-        EpisodeListAdapter adapter = new EpisodeListAdapter(getActivity(), this, mEpisodes);
+        mEpisodeAdapter = new EpisodeListAdapter(getActivity(), this, mEpisodes);
         mEpisodeList.setLayoutManager(linearLayoutManager);
-        mEpisodeList.setAdapter(adapter);
+        mEpisodeList.setAdapter(mEpisodeAdapter);
 
         mProgressBar.setVisibility(View.GONE);
         if(mEpisodes == null || mEpisodes.size() == 0){
             mNothingView.setVisibility(View.VISIBLE);
         } else{
             mEpisodeList.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mEpisodeAdapter != null){
+            mEpisodeAdapter.clear();
         }
     }
 }

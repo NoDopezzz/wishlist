@@ -84,4 +84,8 @@ public class PicturesSliderAdapter extends SliderViewAdapter<PicturesSliderAdapt
             mImageView.setImageBitmap(drawable);
         }
     }
+
+    public void clear(){
+        mThumbnailDownloader.clearQueue();
+    }
 }

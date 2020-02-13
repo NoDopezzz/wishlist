@@ -2,8 +2,6 @@ package nodopezzz.android.wishlist.Fragments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,13 +9,10 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,15 +43,15 @@ import nodopezzz.android.wishlist.Adapters.PicturesSliderAdapter;
 import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.TMDBAPI;
 
-public class ContentFragment extends Fragment {
-    private static final String TAG = "ContentFragment";
+public class ContentMediaFragment extends Fragment {
+    private static final String TAG = "ContentMediaFragment";
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
     private static final String ARG_ID = "ARG_ID";
     private static final String ARG_TITLE = "ARG_TITLE";
 
-    public static ContentFragment newInstance(String content, String id, String title){
-        ContentFragment fragment = new ContentFragment();
+    public static ContentMediaFragment newInstance(String content, String id, String title){
+        ContentMediaFragment fragment = new ContentMediaFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CONTENT, content);
         args.putString(ARG_ID, id);
@@ -84,8 +79,12 @@ public class ContentFragment extends Fragment {
     private ExpandableTextView mOverviewView;
     private RecyclerView mCastListView;
 
+    private CastListAdapter mCastListAdapter;
+    private TVSeasonsListAdapter mTVSeasonsListAdapter;
+
     private LinearLayout mPicturesFrame;
     private LinearLayout mCastFrame;
+    private LinearLayout mMoneyTextLayout;
 
     private FullscreenVideoView mVideoPlayer;
     private SliderView mPicturesSlider;
@@ -105,7 +104,7 @@ public class ContentFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_content, container, false);
+        View v = inflater.inflate(R.layout.fragment_media_content, container, false);
 
         mAppBarLayout = v.findViewById(R.id.content_appbar);
         mBackgroundView = v.findViewById(R.id.content_image);
@@ -122,6 +121,7 @@ public class ContentFragment extends Fragment {
         mMovieExtra = v.findViewById(R.id.content_movie_extra);
         mBudgetView = v.findViewById(R.id.content_budget);
         mRevenueView = v.findViewById(R.id.content_revenue);
+        mMoneyTextLayout = v.findViewById(R.id.content_media_money_text);
 
         mTVShowExtra = v.findViewById(R.id.content_tvshow_extra);
         mNumberSeasonsView = v.findViewById(R.id.content_tvshow_numberseasons);
@@ -211,17 +211,17 @@ public class ContentFragment extends Fragment {
     private void initCastList(){
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        CastListAdapter adapter = new CastListAdapter(getActivity(), mContentItem.getCast());
+        mCastListAdapter = new CastListAdapter(getActivity(), mContentItem.getCast());
         mCastListView.setLayoutManager(layoutManager);
-        mCastListView.setAdapter(adapter);
+        mCastListView.setAdapter(mCastListAdapter);
     }
 
     private void initSeasonsList(){
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        TVSeasonsListAdapter adapter = new TVSeasonsListAdapter(getActivity(), this, ((TVShow)mContentItem).getSeasons());
+        mTVSeasonsListAdapter = new TVSeasonsListAdapter(getActivity(), this, ((TVShow)mContentItem).getSeasons());
         mTVSeasonsList.setLayoutManager(layoutManager);
-        mTVSeasonsList.setAdapter(adapter);
+        mTVSeasonsList.setAdapter(mTVSeasonsListAdapter);
     }
 
     private class LoadContent extends AsyncTask<Void, Void, MediaContent>{
@@ -312,8 +312,14 @@ public class ContentFragment extends Fragment {
 
     private void updateUIMovie(){
         mMovieExtra.setVisibility(View.VISIBLE);
-        mRevenueView.setText(((Movie)mContentItem).getRevenue());
-        mBudgetView.setText(((Movie)mContentItem).getBudget());
+        if(((Movie)mContentItem).getRevenue().equals("") || ((Movie)mContentItem).getBudget().equals("")){
+            mRevenueView.setVisibility(View.GONE);
+            mBudgetView.setVisibility(View.GONE);
+            mMoneyTextLayout.setVisibility(View.GONE);
+        } else {
+            mRevenueView.setText(((Movie) mContentItem).getRevenue());
+            mBudgetView.setText(((Movie) mContentItem).getBudget());
+        }
     }
 
     private void updateUITV(){
@@ -328,5 +334,21 @@ public class ContentFragment extends Fragment {
 
     private void closeFragment(){
         getActivity().finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mPicturesSliderAdapter != null){
+            mPicturesSliderAdapter.clear();
+        }
+
+        if(mCastListAdapter != null){
+            mCastListAdapter.clear();
+        }
+
+        if(mTVSeasonsListAdapter != null){
+            mTVSeasonsListAdapter.clear();
+        }
     }
 }

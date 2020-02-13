@@ -366,8 +366,8 @@ public class TMDBAPI {
             urlVideo = getVideo(CONTENT_MOVIE, id, "");
         }
 
-        String budget = object.getInt("budget") / 1000 + "тыс. $";
-        String revenue = object.getInt("revenue") / 1000 + "тыс. $";
+        String budget = object.getInt("budget") / 1000 == 0 ? "" : object.getInt("budget") / 1000 + " тыс. $";
+        String revenue = object.getInt("revenue") / 1000 == 0 ? "" : object.getInt("revenue") / 1000 + " тыс. $";
 
         movie.setCast(actors);
         movie.setDate(date);
@@ -393,7 +393,7 @@ public class TMDBAPI {
         searchItem.setContent(content);
         try {
             searchItem.setId(jsonObject.getString("id"));
-            searchItem.setImageUrl(IMAGE_URL_ENDPOINT_THUMBNAIL + jsonObject.getString("poster_path"));
+            searchItem.setThumbnailUrl(IMAGE_URL_ENDPOINT_THUMBNAIL + jsonObject.getString("poster_path"));
             searchItem.setOverview(jsonObject.getString("overview"));
             String date = "";
             if(content.equals(CONTENT_TV)) {
@@ -404,7 +404,7 @@ public class TMDBAPI {
                 searchItem.setTitle(jsonObject.getString("title"));
             }
             date = formDate(date);
-            searchItem.setDate(date);
+            searchItem.setSubtitle(date);
 
         } catch (JSONException e) {
             e.printStackTrace();

@@ -101,4 +101,8 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
             mImageActorView.setImageBitmap(image);
         }
     }
+
+    public void clear(){
+        mThumbnailDownloader.clearQueue();
+    }
 }
