@@ -266,6 +266,7 @@ public class TMDBAPI {
         String urlPoster = IMAGE_URL_ENDPOINT_ORIGINAL + object.getString("poster_path");
 
         String date = formDate(object.getString("first_air_date"));
+        String year = formYear(object.getString("first_air_date"));
         String numberOfSeasons = object.getString("number_of_seasons");
 
         JSONArray arrayGenres = object.getJSONArray("genres");
@@ -306,6 +307,7 @@ public class TMDBAPI {
         tvShow.setSeasons(seasons);
         tvShow.setStatus(status);
         tvShow.setNumberOfSeasons(numberOfSeasons);
+        tvShow.setYear(year);
 
         return tvShow;
     }
@@ -351,6 +353,7 @@ public class TMDBAPI {
         String urlPoster = IMAGE_URL_ENDPOINT_ORIGINAL + object.getString("poster_path");
 
         String date = formDate(object.getString("release_date"));
+        String year = formYear(object.getString("release_date"));
 
         JSONArray arrayGenres = object.getJSONArray("genres");
         List<String> genres = new ArrayList<>();
@@ -384,6 +387,7 @@ public class TMDBAPI {
         movie.setUrlPoster(urlPoster);
         movie.setBudget(budget);
         movie.setRevenue(revenue);
+        movie.setYear(year);
 
         return movie;
     }
@@ -418,6 +422,17 @@ public class TMDBAPI {
         try {
             Date parseDate = ft.parse(date);
             return String.format("%te %<tB %<tY", parseDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private static String formYear(String date){
+        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date parseDate = ft.parse(date);
+            return String.format("%tY", parseDate);
         } catch (ParseException e) {
             e.printStackTrace();
         }

@@ -24,10 +24,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 
 import java.io.IOException;
 
+import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
+import nodopezzz.android.wishlist.Database.DBItem;
+import nodopezzz.android.wishlist.Database.DBItemDao;
+import nodopezzz.android.wishlist.Database.Database;
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.GoogleBooksAPI;
 import nodopezzz.android.wishlist.Models.Book;
 import nodopezzz.android.wishlist.Network.UrlDownloader;
@@ -61,14 +69,30 @@ public class ContentBookFragment extends Fragment {
 
     private Book mBook;
 
+    private boolean mIsSaved = false;
+    private Database mDatabase;
+    private DBItemDao mItemDao;
+
+    private Menu mMenu;
+
+    private String mId;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+        mDatabase = GeneralSingleton.getInstance().getDatabase();
+        mItemDao = mDatabase.dbItemDao();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_book_content, container, false);
 
         Bundle args = getArguments();
-        String title = args.getString(ARG_TITLE);
-        String id = args.getString(ARG_ID);
+        mId = args.getString(ARG_ID);
 
         mAuthorView = v.findViewById(R.id.content_book_author);
         mOverviewView = v.findViewById(R.id.content_book_overview);
@@ -80,23 +104,23 @@ public class ContentBookFragment extends Fragment {
         mBookInfoLayout = v.findViewById(R.id.content_book_info);
         mToolbar = v.findViewById(R.id.content_book_toolbar);
 
-        new GetBook().execute(id);
-        initToolbar();
+        new GetBook().execute(mId);
 
         return v;
     }
 
-    private class GetBook extends AsyncTask<String, Void, Book>{
+    private class GetBook extends AsyncTask<String, Void, Void>{
 
         @Override
-        protected Book doInBackground(String... strings) {
-            return GoogleBooksAPI.getBook(strings[0]);
+        protected Void doInBackground(String... strings) {
+            mBook = GoogleBooksAPI.getBook(strings[0]);
+            mIsSaved = mItemDao.getMovieById(mBook.getId(), GoogleBooksAPI.CONTENT_BOOKS) != null;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Book book) {
-            mBook = book;
-            if(book == null) return;
+        protected void onPostExecute(Void argVoid) {
+            if(mBook == null) return;
 
             mProgressBarLayout.setVisibility(View.GONE);
             mBookInfoLayout.setVisibility(View.VISIBLE);
@@ -119,6 +143,7 @@ public class ContentBookFragment extends Fragment {
                 });
             }
 
+            initToolbar();
             new GetImage().execute();
         }
     }
@@ -146,11 +171,25 @@ public class ContentBookFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.content_book_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private void initToolbar(){
+
+        /*MenuItem item = mMenu.findItem(R.id.content_book_menu_marker);
+        if(mIsSaved){
+            item.setIcon(R.drawable.ic_bookmark_black_24dp);
+        } else{
+            item.setIcon(R.drawable.ic_bookmark_border_black_24dp);
+        }*/
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 
+        mToolbar.inflateMenu(R.menu.content_book_menu);
         mToolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,14 +200,62 @@ public class ContentBookFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        //inflater.inflate(R.menu.content_book_menu, menu);
+    public boolean onOptionsItemSelected(@NonNull final MenuItem menuItem) {
+        if(menuItem.getItemId() == R.id.content_book_menu_marker){
+            if(mIsSaved){
+                try {
+                    menuItem.setIcon(R.drawable.ic_bookmark_border_black_24dp);
+                    GeneralSingleton.getInstance().getInternalStorage().deleteImage(mBook.getId(), GoogleBooksAPI.CONTENT_BOOKS);
+
+                    DBItem item = new DBItem();
+                    item.setContent(GoogleBooksAPI.CONTENT_BOOKS);
+                    item.setId(mBook.getId());
+                    item.setTitle(mBook.getTitle());
+                    item.setSubtitle(mBook.getAuthors());
+
+                    new AsyncDatabaseDelete() {
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            mIsSaved = false;
+                            showSnackbar(R.string.state_deleted);
+                        }
+                    }.execute(item);
+                } catch(OutOfMemoryError e){
+                    e.printStackTrace();
+                    showSnackbar(R.string.error_saving);
+                    menuItem.setIcon(R.drawable.ic_bookmark_black_24dp);
+                }
+
+            } else{
+                try {
+                    menuItem.setIcon(R.drawable.ic_bookmark_black_24dp);
+                    GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mBook.getId(), mBook.getUrlImage(), GoogleBooksAPI.CONTENT_BOOKS);
+
+                    DBItem item = new DBItem();
+                    item.setContent(GoogleBooksAPI.CONTENT_BOOKS);
+                    item.setId(mBook.getId());
+                    item.setTitle(mBook.getTitle());
+                    item.setSubtitle(mBook.getAuthors());
+
+                    new AsyncDatabaseInsert() {
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            mIsSaved = true;
+                            showSnackbar(R.string.state_saved);
+                        }
+                    }.execute(item);
+                } catch(OutOfMemoryError e){
+                    e.printStackTrace();
+                    menuItem.setIcon(R.drawable.ic_bookmark_border_black_24dp);
+                    showSnackbar(R.string.error_saving);
+                }
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(menuItem);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //TODO
-        return super.onOptionsItemSelected(item);
+    private void showSnackbar(int resId){
+        Snackbar.make(getView(), resId, Snackbar.LENGTH_LONG).show();
     }
 }

@@ -1,16 +1,13 @@
 package nodopezzz.android.wishlist.Activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import nodopezzz.android.wishlist.Fragments.ContentBookFragment;
-import nodopezzz.android.wishlist.Models.Book;
 import nodopezzz.android.wishlist.R;
 
 public class ContentBookActivity extends AppCompatActivity{
@@ -29,7 +26,7 @@ public class ContentBookActivity extends AppCompatActivity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_content);
+        setContentView(R.layout.activity_single);
 
         Intent intent = getIntent();
         String title = intent.getStringExtra(ARG_TITLE);
@@ -37,14 +34,8 @@ public class ContentBookActivity extends AppCompatActivity{
 
         ContentBookFragment fragment = ContentBookFragment.newInstance(title, id);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, fragment)
+                .replace(R.id.fragment_frame, fragment)
                 .commit();
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.content_book_menu, menu);
-        return true;
     }
 }

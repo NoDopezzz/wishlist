@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.smarteist.autoimageslider.SliderView;
 
@@ -35,6 +37,13 @@ import at.huber.youtubeExtractor.YtFile;
 import bg.devlabs.fullscreenvideoview.FullscreenVideoView;
 import nodopezzz.android.wishlist.Adapters.CastListAdapter;
 import nodopezzz.android.wishlist.Adapters.TVSeasonsListAdapter;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
+import nodopezzz.android.wishlist.Database.DBItem;
+import nodopezzz.android.wishlist.Database.DBItemDao;
+import nodopezzz.android.wishlist.Database.Database;
+import nodopezzz.android.wishlist.GeneralSingleton;
 import nodopezzz.android.wishlist.Models.MediaContent;
 import nodopezzz.android.wishlist.Models.Movie;
 import nodopezzz.android.wishlist.Models.TVShow;
@@ -63,6 +72,10 @@ public class ContentMediaFragment extends Fragment {
     private String mId;
     private MediaContent mContentItem;
     private String mContent;
+
+    private boolean mIsSaved = false;
+    private Database mDatabase;
+    private DBItemDao mItemDao;
 
     private ImageView mBackgroundView;
     private Toolbar mToolbar;
@@ -100,6 +113,16 @@ public class ContentMediaFragment extends Fragment {
 
     private LinearLayout mTVSeasonsLayout;
     private RecyclerView mTVSeasonsList;
+
+    private FloatingActionButton mFloatingActionButton;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mDatabase = GeneralSingleton.getInstance().getDatabase();
+        mItemDao = mDatabase.dbItemDao();
+    }
 
     @Nullable
     @Override
@@ -139,6 +162,7 @@ public class ContentMediaFragment extends Fragment {
         mVideoPlayer = v.findViewById(R.id.content_video_player);
 
         mPicturesSlider = v.findViewById(R.id.content_pictures_slider);
+        mFloatingActionButton = v.findViewById(R.id.content_media_floating_button);
 
         Bundle args = getArguments();
         if(args == null || args.getString(ARG_ID) == null){
@@ -169,7 +193,6 @@ public class ContentMediaFragment extends Fragment {
                     boolean noVideo = true;
                     for (int i = 0; i < itag.length; i++) {
                         if (ytFiles.get(itag[i]) != null) {
-                            Log.i(TAG, ytFiles.get(itag[i]).getUrl());
                             String url = ytFiles.get(itag[i]).getUrl();
                             initVideoPlayer(url);
                             noVideo = false;
@@ -177,7 +200,6 @@ public class ContentMediaFragment extends Fragment {
                         }
                     }
                     if(noVideo){
-                        Log.i(TAG, "true");
                         mVideoPlayer.setVisibility(View.GONE);
                     }
                 } else{
@@ -234,6 +256,7 @@ public class ContentMediaFragment extends Fragment {
 
         @Override
         protected MediaContent doInBackground(Void... voids) {
+            mIsSaved = mItemDao.getMovieById(mId, mContent) != null;
             return TMDBAPI.getContent(mContent, mId);
         }
 
@@ -308,6 +331,95 @@ public class ContentMediaFragment extends Fragment {
         initSlider();
         initToolbar(mContentItem.getTitle());
         initCastList();
+        initFloatingButton();
+    }
+
+    private void initFloatingButton(){
+        ((View)mFloatingActionButton).setVisibility(View.VISIBLE);
+        if(mIsSaved){
+            mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
+        } else{
+            mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_border_white_24dp);
+        }
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mIsSaved){
+                    try {
+                        GeneralSingleton.getInstance().getInternalStorage().deleteImage(mId, mContent);
+                        mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_border_white_24dp);
+
+                        DBItem item = new DBItem();
+                        item.setContent(mContent);
+                        item.setId(mId);
+                        item.setTitle(mContentItem.getTitle());
+                        if (mContent.equals(TMDBAPI.CONTENT_MOVIE)) {
+                            item.setSubtitle(mContentItem.getYear());
+                        } else {
+                            String seasonLine = "";
+                            int seasonNumber = Integer.parseInt(((TVShow) mContentItem).getNumberOfSeasons());
+                            if (seasonNumber % 10 == 1) {
+                                seasonLine = " сезон";
+                            } else if (seasonNumber % 10 < 5) {
+                                seasonLine = " сезона";
+                            } else {
+                                seasonLine = " сезонов";
+                            }
+                            item.setSubtitle(seasonNumber + seasonLine);
+                        }
+                        new AsyncDatabaseDelete() {
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                mIsSaved = false;
+                                showSnackbar(R.string.state_deleted);
+                            }
+                        }.execute(item);
+                    } catch(OutOfMemoryError e){
+                        e.printStackTrace();
+                        mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
+                        showSnackbar(R.string.error_saving);
+                    }
+
+                } else{
+                    try {
+                        GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mId, mContentItem.getUrlPoster(), mContent);
+
+                        mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
+
+                        DBItem item = new DBItem();
+                        item.setContent(mContent);
+                        item.setId(mId);
+                        item.setTitle(mContentItem.getTitle());
+                        if (mContent.equals(TMDBAPI.CONTENT_MOVIE)) {
+                            item.setSubtitle(mContentItem.getYear());
+                        } else {
+                            String seasonLine = "";
+                            int seasonNumber = Integer.parseInt(((TVShow) mContentItem).getNumberOfSeasons());
+                            if (seasonNumber % 10 == 1) {
+                                seasonLine = " сезон";
+                            } else if (seasonNumber % 10 < 5 && !(seasonNumber < 15 && seasonNumber > 4)) {
+                                seasonLine = " сезона";
+                            } else {
+                                seasonLine = " сезонов";
+                            }
+                            item.setSubtitle(seasonNumber + seasonLine);
+                        }
+
+                        new AsyncDatabaseInsert() {
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                mIsSaved = true;
+                                showSnackbar(R.string.state_saved);
+                            }
+                        }.execute(item);
+                    } catch(OutOfMemoryError e){
+                        e.printStackTrace();
+                        mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_border_white_24dp);
+                        showSnackbar(R.string.error_saving);
+                    }
+                }
+            }
+        });
     }
 
     private void updateUIMovie(){
@@ -350,5 +462,9 @@ public class ContentMediaFragment extends Fragment {
         if(mTVSeasonsListAdapter != null){
             mTVSeasonsListAdapter.clear();
         }
+    }
+
+    private void showSnackbar(int resId){
+        Snackbar.make(getView(), resId, Snackbar.LENGTH_LONG).show();
     }
 }

@@ -391,13 +391,16 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/content_media_floating_button"
         android:layout_height="56dp"
         android:layout_width="56dp"
         app:fabCustomSize="56dp"
         android:layout_margin="24dp"
         android:src="@drawable/ic_bookmark_border_white_24dp"
         app:layout_anchor="@id/content_appbar"
-        app:layout_anchorGravity="bottom|right|end"/>
+        app:layout_anchorGravity="bottom|right|end"
+
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:id="@+id/content_progressbar"

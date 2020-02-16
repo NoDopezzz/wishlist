@@ -26,7 +26,7 @@ public class ContentMediaActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_content);
+        setContentView(R.layout.activity_single);
 
         Intent data = getIntent();
         String content;
@@ -40,7 +40,7 @@ public class ContentMediaActivity extends AppCompatActivity {
 
             ContentMediaFragment fragment = ContentMediaFragment.newInstance(content, id, title);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, fragment)
+                    .replace(R.id.fragment_frame, fragment)
                     .commit();
         }
     }

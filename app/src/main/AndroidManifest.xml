@@ -28,6 +28,7 @@
         </activity>
         <activity android:name=".Activities.ContentBookActivity"
             android:theme="@style/ContentActivityTheme"/>
+        <activity android:name=".Activities.SearchActivity"/>
     </application>
 
 </manifest>

@@ -4,14 +4,23 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
+
+import nodopezzz.android.wishlist.Activities.SearchActivity;
+import nodopezzz.android.wishlist.Adapters.SavedListAdapter;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
+import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.TMDBAPI;
 
@@ -21,8 +30,13 @@ public class ListFragment extends Fragment {
 
     private String mContent;
 
-    private TextView mTextView;
     private FloatingActionButton mAddButton;
+
+    private RecyclerView mList;
+    private List<DBItem> mItems;
+
+    private SavedListAdapter mAdapter;
+    private ProgressBar mProgressBar;
 
     public static ListFragment newInstance(String content){
         ListFragment fragment = new ListFragment();
@@ -37,8 +51,9 @@ public class ListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_list, container, false);
 
-        mTextView = v.findViewById(R.id.text_view);
         mAddButton = v.findViewById(R.id.fab_item_add);
+        mList = v.findViewById(R.id.list_recyclerview);
+        mProgressBar = v.findViewById(R.id.list_progressbar);
 
         Bundle args = getArguments();
         mContent = TMDBAPI.CONTENT_MOVIE;
@@ -46,19 +61,45 @@ public class ListFragment extends Fragment {
             mContent = args.getString(ARG_CONTENT);
         }
 
-        mTextView.setText(mContent);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SearchFragment fragment = SearchFragment.newInstance(mContent);
-                if(getFragmentManager() == null) return;
-                getFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.navigation_activity_frame, fragment)
-                        .commit();
+                startActivity(SearchActivity.newInstance(getActivity(), mContent));
             }
         });
-        return v;
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initList();
+    }
+
+    private void initList(){
+        mProgressBar.setVisibility(View.VISIBLE);
+        new AsyncDatabaseGetByContent(){
+
+            @Override
+            public void onPostGet(List<DBItem> argItems) {
+                mItems = argItems;
+                mAdapter = new SavedListAdapter(getActivity(), mItems);
+                GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+                mList.setAdapter(mAdapter);
+                mList.setLayoutManager(layoutManager);
+
+                mProgressBar.setVisibility(View.GONE);
+            }
+        }.execute(mContent);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mAdapter != null){
+            mAdapter.clear();
+        }
     }
 }

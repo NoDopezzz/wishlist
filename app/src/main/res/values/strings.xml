@@ -21,4 +21,8 @@
     <string name="episode_list_nothing">Ничего не найдено</string>
 
     <string name="content_book_menu_marker">Сохранить</string>
+
+    <string name="error_saving">Произошла ошибка при сохранении</string>
+    <string name="state_saved">Добавлено в избранное</string>
+    <string name="state_deleted">Удалено из избранного</string>
 </resources>

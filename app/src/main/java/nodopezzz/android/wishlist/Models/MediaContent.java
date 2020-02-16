@@ -12,6 +12,7 @@ public class MediaContent {
     protected String mVoteCount;
     protected String mTime;
     protected String mUrlPoster;
+    protected String mYear;
 
     protected List<String> mGenres;
 
@@ -121,5 +122,13 @@ public class MediaContent {
 
     public void setUrlPoster(String urlPoster) {
         mUrlPoster = urlPoster;
+    }
+
+    public String getYear(){
+        return mYear;
+    }
+
+    public void setYear(String year){
+        mYear = year;
     }
 }
