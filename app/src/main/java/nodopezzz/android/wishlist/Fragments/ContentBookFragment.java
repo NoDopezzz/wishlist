@@ -174,18 +174,16 @@ public class ContentBookFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.content_book_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    private void initToolbar(){
-
-        /*MenuItem item = mMenu.findItem(R.id.content_book_menu_marker);
+        MenuItem item = menu.findItem(R.id.content_book_menu_marker);
         if(mIsSaved){
             item.setIcon(R.drawable.ic_bookmark_black_24dp);
         } else{
             item.setIcon(R.drawable.ic_bookmark_border_black_24dp);
-        }*/
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
+    private void initToolbar(){
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 
@@ -197,6 +195,8 @@ public class ContentBookFragment extends Fragment {
                 getActivity().finish();
             }
         });
+
+        getActivity().invalidateOptionsMenu();
     }
 
     @Override
