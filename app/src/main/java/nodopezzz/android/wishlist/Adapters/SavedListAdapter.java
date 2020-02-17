@@ -44,6 +44,10 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
         mDownloader.start();
     }
 
+    public void setItems(List<DBItem> items){
+        mItems = items;
+    }
+
     @NonNull
     @Override
     public SavedItemHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

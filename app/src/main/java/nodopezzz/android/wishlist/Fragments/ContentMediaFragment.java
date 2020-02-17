@@ -210,8 +210,12 @@ public class ContentMediaFragment extends Fragment {
     }
 
     private void initVideoPlayer(String url){
-        mVideoPlayer.videoUrl(url);
-        mVideoPlayer.hideFullscreenButton();
+        try {
+            mVideoPlayer.videoUrl(url);
+            mVideoPlayer.hideFullscreenButton();
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -465,6 +469,7 @@ public class ContentMediaFragment extends Fragment {
     }
 
     private void showSnackbar(int resId){
+        if(getView() == null) return;
         Snackbar.make(getView(), resId, Snackbar.LENGTH_LONG).show();
     }
 }

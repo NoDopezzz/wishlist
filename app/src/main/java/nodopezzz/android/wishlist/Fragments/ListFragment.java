@@ -1,5 +1,6 @@
 package nodopezzz.android.wishlist.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -64,11 +67,20 @@ public class ListFragment extends Fragment {
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(SearchActivity.newInstance(getActivity(), mContent));
+                presentActivity(v);
             }
         });
 
         return v;
+    }
+
+    private void presentActivity(View v){
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), v, "transition");
+        int x = (int) (v.getX() + v.getWidth() / 2);
+        int y = (int) (v.getY() + v.getHeight() / 2);
+
+        Intent intent = SearchActivity.newInstance(getActivity(), mContent, x, y);
+        ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
     }
 
     @Override
@@ -78,16 +90,25 @@ public class ListFragment extends Fragment {
     }
 
     private void initList(){
-        mProgressBar.setVisibility(View.VISIBLE);
+        if(mItems == null) {
+            mList.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
         new AsyncDatabaseGetByContent(){
 
             @Override
             public void onPostGet(List<DBItem> argItems) {
                 mItems = argItems;
-                mAdapter = new SavedListAdapter(getActivity(), mItems);
-                GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
-                mList.setAdapter(mAdapter);
-                mList.setLayoutManager(layoutManager);
+                if(mAdapter == null) {
+                    mAdapter = new SavedListAdapter(getActivity(), mItems);
+                    GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
+                    mList.setAdapter(mAdapter);
+                    mList.setLayoutManager(layoutManager);
+                } else{
+                    mAdapter.setItems(mItems);
+                    mAdapter.notifyDataSetChanged();
+                }
+                mList.setVisibility(View.VISIBLE);
 
                 mProgressBar.setVisibility(View.GONE);
             }
