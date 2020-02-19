@@ -418,7 +418,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
 
-            android:visibility="visible"/>
+            android:visibility="gone"/>
 
     </RelativeLayout>
 

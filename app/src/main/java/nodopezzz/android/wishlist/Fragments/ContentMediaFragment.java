@@ -1,14 +1,21 @@
 package nodopezzz.android.wishlist.Fragments;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -114,6 +121,9 @@ public class ContentMediaFragment extends Fragment {
     private RecyclerView mTVSeasonsList;
 
     private FloatingActionButton mFloatingActionButton;
+    private boolean mIsFABShown = true;
+    private AnimatorSet mFABAnimatorSet;
+    private float mFABPositionY = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -158,13 +168,17 @@ public class ContentMediaFragment extends Fragment {
         mNestedScrollView = v.findViewById(R.id.content_nestedscrollview);
         mProgressBarLayout = v.findViewById(R.id.content_progressbar);
 
+        mFABAnimatorSet = new AnimatorSet();
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (oldScrollY - scrollY > 4 && !mFloatingActionButton.isShown())
-                    mFloatingActionButton.show();
-                else if(oldScrollY - scrollY < -4 && mFloatingActionButton.isShown())
-                    mFloatingActionButton.hide();
+                if (oldScrollY - scrollY > 4 && !mIsFABShown){
+                    animateFABShow();
+                    mIsFABShown = true;
+                } else if(oldScrollY - scrollY < -4 && mIsFABShown) {
+                    animateFABHide();
+                    mIsFABShown = false;
+                }
             }
         });
 
@@ -186,6 +200,50 @@ public class ContentMediaFragment extends Fragment {
         new LoadContent().execute();
 
         return v;
+    }
+
+    private void animateFABShow(){
+        if (mFABAnimatorSet.isRunning()){
+            mFABAnimatorSet.cancel();
+        }
+
+        float dp = 24f;
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+
+        float startY = mFloatingActionButton.getY();
+        float endY = mFABPositionY;
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mFloatingActionButton, "y", startY, endY)
+                .setDuration(300);
+        animator.setInterpolator(new AccelerateInterpolator());
+        mFABAnimatorSet = new AnimatorSet();
+        mFABAnimatorSet.play(animator);
+        mFABAnimatorSet.start();
+    }
+
+    private void animateFABHide(){
+        if (mFABAnimatorSet.isRunning()){
+            mFABAnimatorSet.cancel();
+        }
+
+        float dp = 24f;
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+
+        if(mFABPositionY == 0){
+            mFABPositionY = mFloatingActionButton.getY();
+        }
+
+        float startY = mFloatingActionButton.getY();
+        float endY = mFABPositionY + mFloatingActionButton.getHeight() + px;
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mFloatingActionButton, "y", startY, endY)
+                .setDuration(300);
+        animator.setInterpolator(new AccelerateInterpolator());
+        mFABAnimatorSet = new AnimatorSet();
+        mFABAnimatorSet.play(animator);
+        mFABAnimatorSet.start();
     }
 
     private void initSlider(){
