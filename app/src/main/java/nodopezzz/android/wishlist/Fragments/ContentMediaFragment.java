@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,6 +157,16 @@ public class ContentMediaFragment extends Fragment {
 
         mNestedScrollView = v.findViewById(R.id.content_nestedscrollview);
         mProgressBarLayout = v.findViewById(R.id.content_progressbar);
+
+        mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if (oldScrollY - scrollY > 4 && !mFloatingActionButton.isShown())
+                    mFloatingActionButton.show();
+                else if(oldScrollY - scrollY < -4 && mFloatingActionButton.isShown())
+                    mFloatingActionButton.hide();
+            }
+        });
 
         mVideoPlayer = v.findViewById(R.id.content_video_player);
 

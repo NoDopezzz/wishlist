@@ -83,9 +83,9 @@ public class ListFragment extends Fragment {
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy){
-                if (dy<0 && !mAddButton.isShown())
+                if (dy<-4 && !mAddButton.isShown())
                     mAddButton.show();
-                else if(dy>0 && mAddButton.isShown())
+                else if(dy>4 && mAddButton.isShown())
                     mAddButton.hide();
             }
 

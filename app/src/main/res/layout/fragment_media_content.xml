@@ -390,18 +390,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/content_media_floating_button"
-        android:layout_height="56dp"
-        android:layout_width="56dp"
-        app:fabCustomSize="56dp"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_bookmark_border_white_24dp"
-        app:layout_anchor="@id/content_appbar"
-        app:layout_anchorGravity="bottom|right|end"
-
-        android:visibility="gone"/>
-
     <RelativeLayout
         android:id="@+id/content_progressbar"
         android:layout_width="match_parent"
@@ -412,6 +400,25 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="200dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/content_media_floating_button"
+            android:layout_height="56dp"
+            android:layout_width="56dp"
+            app:fabCustomSize="56dp"
+            android:layout_margin="24dp"
+            android:src="@drawable/ic_bookmark_border_white_24dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+
+            android:visibility="visible"/>
 
     </RelativeLayout>
 
