@@ -2,6 +2,7 @@ package nodopezzz.android.wishlist.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,26 +13,45 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
 import nodopezzz.android.wishlist.Database.DBItem;
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
+import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperAdapter;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.ThumbnailStorageDownloader;
+import nodopezzz.android.wishlist.MemoryUtils.ThumbnailStorageDownloader;
+import nodopezzz.android.wishlist.Vibration;
 
-public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.SavedItemHolder> {
+public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.SavedItemHolder>
+        implements ItemTouchHelperAdapter {
 
     private List<DBItem> mItems;
     private Context mContext;
+    private View mDeleteView;
 
     private ThumbnailStorageDownloader<SavedItemHolder> mDownloader;
+    private onStateChangedListener mOnStateChangedListener;
 
-    public SavedListAdapter(Context context, List<DBItem> items){
+    public void setOnStateChangedListener(onStateChangedListener onStateChangedListener) {
+        mOnStateChangedListener = onStateChangedListener;
+    }
+
+    public interface onStateChangedListener{
+        public void onSelected();
+        public void onClear();
+        public void onOverlapped();
+        public void onOverlappedClear();
+    }
+
+    public SavedListAdapter(Context context, List<DBItem> items, View deleteView){
         mContext = context;
         mItems = items;
+        mDeleteView = deleteView;
 
         mDownloader = new ThumbnailStorageDownloader<>("SavedListAdapter", new ThumbnailStorageDownloader.OnPostDownloaded<SavedItemHolder>() {
             @Override
@@ -65,6 +85,52 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
         return mItems.size();
     }
 
+    @Override
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(mItems, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(mItems, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+        return true;
+    }
+
+    @Override
+    public void onItemDismiss(final RecyclerView.ViewHolder holder, final int position) {
+        Vibration.vibrate(mContext);
+        new AsyncDatabaseDelete(){
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                holder.itemView.setVisibility(View.GONE);
+                mItems.remove(position);
+                notifyItemRemoved(position);
+            }
+        }.execute(mItems.get(position));
+    }
+
+    @Override
+    public void onItemSelected(int position, RecyclerView.ViewHolder holder) {
+        SavedItemHolder savedItemHolder = (SavedItemHolder) holder;
+        savedItemHolder.onSelectedState();
+        if(mOnStateChangedListener != null){
+            mOnStateChangedListener.onSelected();
+        }
+    }
+
+    @Override
+    public void onClearView(int position, RecyclerView.ViewHolder holder) {
+        SavedItemHolder savedItemHolder = (SavedItemHolder) holder;
+        savedItemHolder.onClearState();
+        if(mOnStateChangedListener != null){
+            mOnStateChangedListener.onClear();
+        }
+    }
+
     public class SavedItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ImageView mImageView;
@@ -79,12 +145,22 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
             mImageView = itemView.findViewById(R.id.saved_image);
             mTitleView = itemView.findViewById(R.id.saved_title);
             mSubtitleView = itemView.findViewById(R.id.saved_subtitle);
+
+            itemView.setOnClickListener(this);
+        }
+
+        public void onSelectedState(){
+            mTitleView.setVisibility(View.GONE);
+            mSubtitleView.setVisibility(View.GONE);
+        }
+
+        public void onClearState(){
+            mTitleView.setVisibility(View.VISIBLE);
+            mSubtitleView.setVisibility(View.VISIBLE);
         }
 
         public void bindView(int position){
             mItem = mItems.get(position);
-
-            itemView.setOnClickListener(this);
 
             mTitleView.setText(mItem.getTitle());
             mSubtitleView.setText(mItem.getSubtitle());
@@ -118,6 +194,38 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
             }
         }
     }
+
+    public boolean isOverlapping(View firstView) {
+        View secondView = mDeleteView;
+
+        int[] firstPosition = new int[2];
+        int[] secondPosition = new int[2];
+
+        firstView.getLocationOnScreen(firstPosition);
+        secondView.getLocationOnScreen(secondPosition);
+
+        // Rect constructor parameters: left, top, right, bottom
+        Rect rectFirstView = new Rect(firstPosition[0], firstPosition[1],
+                firstPosition[0] + firstView.getMeasuredWidth(), firstPosition[1] + firstView.getMeasuredHeight());
+        Rect rectSecondView = new Rect(secondPosition[0], secondPosition[1],
+                secondPosition[0] + secondView.getMeasuredWidth(), secondPosition[1] + secondView.getMeasuredHeight());
+        return rectFirstView.intersect(rectSecondView);
+    }
+
+    @Override
+    public void onOverlapping() {
+        if(mOnStateChangedListener != null) {
+            mOnStateChangedListener.onOverlapped();
+        }
+    }
+
+    @Override
+    public void onOverlappingClear() {
+        if(mOnStateChangedListener != null){
+            mOnStateChangedListener.onOverlappedClear();
+        }
+    }
+
 
     public void clear(){
         mDownloader.clearQueue();

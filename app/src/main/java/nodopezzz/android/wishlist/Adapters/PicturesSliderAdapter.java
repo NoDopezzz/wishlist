@@ -2,10 +2,7 @@ package nodopezzz.android.wishlist.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +12,8 @@ import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.List;
 
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.IconCache;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
+import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
 

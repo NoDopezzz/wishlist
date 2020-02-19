@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeDialogFragment;
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.IconCache;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
+import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.Episode;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;

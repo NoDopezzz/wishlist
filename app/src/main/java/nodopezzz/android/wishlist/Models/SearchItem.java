@@ -4,7 +4,7 @@ import android.content.Context;
 
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 
 public class SearchItem {
 

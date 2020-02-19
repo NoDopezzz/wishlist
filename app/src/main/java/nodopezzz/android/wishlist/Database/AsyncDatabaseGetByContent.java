@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import nodopezzz.android.wishlist.GeneralSingleton;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 
 abstract public class AsyncDatabaseGetByContent extends AsyncTask<String, Void, List<DBItem>> {
 

@@ -2,7 +2,7 @@ package nodopezzz.android.wishlist.Database;
 
 import android.os.AsyncTask;
 
-import nodopezzz.android.wishlist.GeneralSingleton;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 
 public class AsyncDatabaseInsert extends AsyncTask<DBItem, Void, Void> {
 

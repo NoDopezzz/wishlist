@@ -1,10 +1,12 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.Utils;
 
 import android.app.Application;
 
 import androidx.room.Room;
 
 import nodopezzz.android.wishlist.Database.Database;
+import nodopezzz.android.wishlist.MemoryUtils.IconCache;
+import nodopezzz.android.wishlist.MemoryUtils.InternalStorage;
 
 public class GeneralSingleton extends Application {
 

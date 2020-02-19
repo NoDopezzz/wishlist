@@ -16,12 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import nodopezzz.android.wishlist.Activities.ContentBookActivity;
-import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
-import nodopezzz.android.wishlist.IconCache;
-import nodopezzz.android.wishlist.Models.Book;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
+import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.SearchItem;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
@@ -117,12 +113,13 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
             mTextTitle = itemView.findViewById(R.id.search_item_title);
             mTextSubtitle = itemView.findViewById(R.id.search_item_subtitle);
             mTextOverview = itemView.findViewById(R.id.search_item_overview);
+
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void bindView(int position){
 
-            itemView.setOnClickListener(this);
             mItem = mSearchItems.get(position);
             mTextTitle.setText(mItem.getTitle());
             mTextSubtitle.setText(mItem.getSubtitle());

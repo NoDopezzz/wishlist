@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.MemoryUtils;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 
 public class ThumbnailStorageDownloader<T> extends HandlerThread {
 
@@ -56,16 +58,22 @@ public class ThumbnailStorageDownloader<T> extends HandlerThread {
 
     private void handle(final T target){
         final String[] args = mMap.get(target);
-        final Bitmap bitmap = GeneralSingleton.getInstance().getInternalStorage().loadImage(args[0], args[1]);
-        mResponse.post(new Runnable() {
-            @Override
-            public void run() {
-                if(mHasQuit) return;
-                Log.i(TAG, args[0] + args[1]);
-                mCallback.onPostDownloaded(target, bitmap, args[0] + "_" + args[1]);
-                mMap.remove(target);
-            }
-        });
+        if(args == null) return;
+        try {
+            final Bitmap bitmap = GeneralSingleton.getInstance().getInternalStorage().loadImage(args[0], args[1]);
+            mResponse.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mHasQuit) return;
+                    Log.i(TAG, args[0] + args[1]);
+                    mCallback.onPostDownloaded(target, bitmap, args[0] + "_" + args[1]);
+                    mMap.remove(target);
+                }
+            });
+        } catch(OutOfMemoryError e){
+            mMap.remove(target);
+            putInQueue(target, args[0], args[1]);
+        }
     }
 
     public void clearQueue(){

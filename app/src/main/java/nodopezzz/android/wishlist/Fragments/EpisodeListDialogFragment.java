@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,7 +20,7 @@ import java.util.List;
 import nodopezzz.android.wishlist.Adapters.EpisodeListAdapter;
 import nodopezzz.android.wishlist.Models.Episode;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.TMDBAPI;
+import nodopezzz.android.wishlist.APIs.TMDBAPI;
 
 public class EpisodeListDialogFragment extends DialogFragment {
 

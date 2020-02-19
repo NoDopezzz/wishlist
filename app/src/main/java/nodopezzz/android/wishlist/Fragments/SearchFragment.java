@@ -1,21 +1,15 @@
 package nodopezzz.android.wishlist.Fragments;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,17 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-import nodopezzz.android.wishlist.Activities.ContentBookActivity;
-import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
 import nodopezzz.android.wishlist.Adapters.SearchListAdapter;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
-import nodopezzz.android.wishlist.IconCache;
-import nodopezzz.android.wishlist.Models.Book;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.OnScrolled;
 import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.Models.SearchItem;
-import nodopezzz.android.wishlist.TMDBAPI;
-import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
+import nodopezzz.android.wishlist.APIs.TMDBAPI;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";

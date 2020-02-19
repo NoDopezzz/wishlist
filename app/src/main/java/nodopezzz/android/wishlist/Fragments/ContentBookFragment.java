@@ -30,13 +30,12 @@ import com.ms.square.android.expandabletextview.ExpandableTextView;
 import java.io.IOException;
 
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
-import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.Database.DBItemDao;
 import nodopezzz.android.wishlist.Database.Database;
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.Models.Book;
 import nodopezzz.android.wishlist.Network.UrlDownloader;
 import nodopezzz.android.wishlist.R;
@@ -184,6 +183,7 @@ public class ContentBookFragment extends Fragment {
     }
 
     private void initToolbar(){
+        if(getActivity() == null) return;
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(true);
 

@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.MemoryUtils;
 
 import android.app.ActivityManager;
 import android.content.Context;

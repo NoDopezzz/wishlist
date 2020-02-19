@@ -1,14 +1,5 @@
 package nodopezzz.android.wishlist.Models;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-
-import java.util.List;
-
-import nodopezzz.android.wishlist.Activities.ContentBookActivity;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
-
 public class Book{
     private String mId;
     private String mTitle;

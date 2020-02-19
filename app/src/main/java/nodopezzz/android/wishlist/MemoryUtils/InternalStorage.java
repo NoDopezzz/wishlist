@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.MemoryUtils;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import nodopezzz.android.wishlist.Network.UrlDownloader;
+import nodopezzz.android.wishlist.R;
 
 public class InternalStorage {
 

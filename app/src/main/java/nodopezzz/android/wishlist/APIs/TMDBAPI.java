@@ -1,4 +1,4 @@
-package nodopezzz.android.wishlist;
+package nodopezzz.android.wishlist.APIs;
 
 import android.net.Uri;
 import android.util.Log;

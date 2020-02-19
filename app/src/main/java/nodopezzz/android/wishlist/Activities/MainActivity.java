@@ -9,9 +9,9 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import nodopezzz.android.wishlist.Fragments.ListFragment;
-import nodopezzz.android.wishlist.GoogleBooksAPI;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.TMDBAPI;
+import nodopezzz.android.wishlist.APIs.TMDBAPI;
 
 public class MainActivity extends AppCompatActivity {
 

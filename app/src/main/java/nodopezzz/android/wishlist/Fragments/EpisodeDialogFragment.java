@@ -12,8 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import nodopezzz.android.wishlist.GeneralSingleton;
-import nodopezzz.android.wishlist.IconCache;
+import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.R;
 
 public class EpisodeDialogFragment extends DialogFragment {

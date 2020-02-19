@@ -1,12 +1,22 @@
 package nodopezzz.android.wishlist.Fragments;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,10 +35,13 @@ import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.SavedListAdapter;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
 import nodopezzz.android.wishlist.Database.DBItem;
+import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperDelete;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.TMDBAPI;
+import nodopezzz.android.wishlist.APIs.TMDBAPI;
+import nodopezzz.android.wishlist.Vibration;
 
 public class ListFragment extends Fragment {
+    private static final String TAG = "ListFragment";
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
 
@@ -40,6 +54,11 @@ public class ListFragment extends Fragment {
 
     private SavedListAdapter mAdapter;
     private ProgressBar mProgressBar;
+    private ImageView mDeleteView;
+    private View mDeleteCircle;
+
+    private AnimatorSet mAnimatorSetTrash;
+    private AnimatorSet mAnimatorSetCircle;
 
     public static ListFragment newInstance(String content){
         ListFragment fragment = new ListFragment();
@@ -57,6 +76,24 @@ public class ListFragment extends Fragment {
         mAddButton = v.findViewById(R.id.fab_item_add);
         mList = v.findViewById(R.id.list_recyclerview);
         mProgressBar = v.findViewById(R.id.list_progressbar);
+        mDeleteView = v.findViewById(R.id.list_delete_image);
+        mDeleteCircle = v.findViewById(R.id.list_delete_circle);
+
+        mList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+                if (dy<0 && !mAddButton.isShown())
+                    mAddButton.show();
+                else if(dy>0 && mAddButton.isShown())
+                    mAddButton.hide();
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
 
         Bundle args = getArguments();
         mContent = TMDBAPI.CONTENT_MOVIE;
@@ -70,6 +107,8 @@ public class ListFragment extends Fragment {
                 presentActivity(v);
             }
         });
+        mAnimatorSetTrash = new AnimatorSet();
+        mAnimatorSetCircle = new AnimatorSet();
 
         return v;
     }
@@ -100,10 +139,40 @@ public class ListFragment extends Fragment {
             public void onPostGet(List<DBItem> argItems) {
                 mItems = argItems;
                 if(mAdapter == null) {
-                    mAdapter = new SavedListAdapter(getActivity(), mItems);
+                    mAdapter = new SavedListAdapter(getActivity(), mItems, mDeleteView);
+
+                    mAdapter.setOnStateChangedListener(new SavedListAdapter.onStateChangedListener() {
+                        @Override
+                        public void onSelected() {
+                            animateShowingDeleteButton();
+                            Vibration.vibrate(getActivity());
+                            mAddButton.hide();
+                        }
+
+                        @Override
+                        public void onClear() {
+                            animateClosingDeleteButton();
+                            animateCircleDeleteClosing();
+                            mAddButton.show();
+                        }
+
+                        @Override
+                        public void onOverlapped() {
+                            animateCircleDeleteShowing();
+                        }
+
+                        @Override
+                        public void onOverlappedClear() {
+                            animateCircleDeleteClosing();
+                        }
+                    });
                     GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), 2);
                     mList.setAdapter(mAdapter);
                     mList.setLayoutManager(layoutManager);
+
+                    ItemTouchHelper.Callback callback = new ItemTouchHelperDelete(mAdapter);
+                    ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                    touchHelper.attachToRecyclerView(mList);
                 } else{
                     mAdapter.setItems(mItems);
                     mAdapter.notifyDataSetChanged();
@@ -114,6 +183,82 @@ public class ListFragment extends Fragment {
             }
         }.execute(mContent);
 
+    }
+
+    private void animateCircleDeleteShowing(){
+        if(mAnimatorSetCircle.isRunning()){
+            mAnimatorSetCircle.cancel();
+        }
+
+        ObjectAnimator animatorScaleX = ObjectAnimator.ofFloat(mDeleteCircle, "scaleX", 200.0f)
+                .setDuration(200);
+        animatorScaleX.setInterpolator(new AccelerateInterpolator());
+
+        ObjectAnimator animatorScaleY = ObjectAnimator.ofFloat(mDeleteCircle, "scaleY", 200.0f)
+                .setDuration(200);
+        animatorScaleY.setInterpolator(new AccelerateInterpolator());
+
+        mAnimatorSetCircle = new AnimatorSet();
+        mAnimatorSetCircle.play(animatorScaleX).with(animatorScaleY);
+        mAnimatorSetCircle.start();
+    }
+
+    private void animateCircleDeleteClosing(){
+        if(mAnimatorSetCircle.isRunning()){
+            mAnimatorSetCircle.cancel();
+        }
+
+        ObjectAnimator animatorScaleX = ObjectAnimator.ofFloat(mDeleteCircle, "scaleX", 1.0f/200.0f)
+                .setDuration(200);
+        animatorScaleX.setInterpolator(new AccelerateInterpolator());
+
+        ObjectAnimator animatorScaleY = ObjectAnimator.ofFloat(mDeleteCircle, "scaleY", 1.0f/200.0f)
+                .setDuration(200);
+        animatorScaleY.setInterpolator(new AccelerateInterpolator());
+
+        mAnimatorSetCircle = new AnimatorSet();
+        mAnimatorSetCircle.play(animatorScaleX).with(animatorScaleY);
+        mAnimatorSetCircle.start();
+    }
+
+    private void animateShowingDeleteButton(){
+        if(mAnimatorSetTrash.isRunning()){
+            mAnimatorSetTrash.cancel();
+        }
+
+        float dip = 60f;
+        Resources r = getResources();
+        float px = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dip,
+                r.getDisplayMetrics()
+        );
+
+        float startY = mDeleteView.getY();
+        float endY = mDeleteView.getY() - px;
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mDeleteView, "y", startY, endY)
+                .setDuration(300);
+        animator.setInterpolator(new AccelerateInterpolator());
+        mAnimatorSetTrash = new AnimatorSet();
+        mAnimatorSetTrash.play(animator);
+        mAnimatorSetTrash.start();
+    }
+
+    private void animateClosingDeleteButton(){
+        if(mAnimatorSetTrash.isRunning()){
+            mAnimatorSetTrash.cancel();
+        }
+
+        float startY = mDeleteView.getY();
+        float endY = getView().getHeight();
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mDeleteView, "y", startY, endY)
+                .setDuration(300);
+        animator.setInterpolator(new AccelerateInterpolator());
+        mAnimatorSetTrash = new AnimatorSet();
+        mAnimatorSetTrash.play(animator);
+        mAnimatorSetTrash.start();
     }
 
     @Override
