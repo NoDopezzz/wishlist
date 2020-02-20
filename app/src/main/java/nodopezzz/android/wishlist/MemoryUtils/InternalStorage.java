@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -101,7 +102,18 @@ public class InternalStorage {
             try {
                 byte[] bytes = new byte[0];
                 bytes = UrlDownloader.getResponseByte(containerForLoadings[0].getImageUrl());
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                final Bitmap bitmap;
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+                int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 120f);
+                int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 180f);
+
+                options.inSampleSize = ImageSizeCalculator.calculateInSampleSize(options, width, height);
+                options.inJustDecodeBounds = false;
+                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                Log.i("ImageSizeCalculator", "size (mb): " + bitmap.getByteCount() / 1024f / 1024f);
                 saveToInternalStorage(
                         containerForLoadings[0].getName(),
                         bitmap,

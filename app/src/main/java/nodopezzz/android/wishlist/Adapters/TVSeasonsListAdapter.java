@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeListDialogFragment;
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.Season;
@@ -92,7 +93,11 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
             mDateView.setText(season.getDate());
 
             if(mIconCache.getBitmapFromMemory(season.getUrlImage()) == null){
-                mThumbnailDownloader.queueMessage(season.getUrlImage(), this);
+
+                int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 150f);
+                int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 225f);
+
+                mThumbnailDownloader.queueMessage(season.getUrlImage(), this,width, height);
                 bindImage(null);
             } else{
                 bindImage(mIconCache.getBitmapFromMemory(season.getUrlImage()));
@@ -116,5 +121,9 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
 
     public void clear(){
         mThumbnailDownloader.clearQueue();
+    }
+
+    public void quit(){
+        mThumbnailDownloader.quit();
     }
 }

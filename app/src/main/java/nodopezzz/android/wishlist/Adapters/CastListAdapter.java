@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.Actor;
@@ -84,10 +85,15 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
 
             mCharacterView.setText(actor.getCharacterName());
             mNameActorView.setText(actor.getName());
+            mImageActorView.setImageResource(R.drawable.placeholder_person);
 
             if(mIconCache.getBitmapFromMemory(actor.getUrlProfilePhoto()) == null){
                 if(!actor.getUrlProfilePhoto().equals("")){
-                    mThumbnailDownloader.queueMessage(actor.getUrlProfilePhoto(), this);
+
+                    int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 150);
+                    int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 225);
+
+                    mThumbnailDownloader.queueMessage(actor.getUrlProfilePhoto(), this, width, height);
                 } else{
                     mImageActorView.setImageResource(R.drawable.placeholder_person);
                 }
@@ -103,5 +109,9 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
 
     public void clear(){
         mThumbnailDownloader.clearQueue();
+    }
+
+    public void quit(){
+        mThumbnailDownloader.quit();
     }
 }

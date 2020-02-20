@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
@@ -18,6 +19,8 @@ import java.util.List;
 
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
+import nodopezzz.android.wishlist.Activities.MainActivity;
+import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperAdapter;
@@ -186,11 +189,11 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
                         mItem.getId(),
                         mItem.getTitle()));
             } else{
-                mContext.startActivity(ContentMediaActivity.newInstance(
+                ((AppCompatActivity)mContext).startActivityForResult(ContentMediaActivity.newInstance(
                         mContext,
                         mItem.getContent(),
                         mItem.getId(),
-                        mItem.getTitle()));
+                        mItem.getTitle()), SearchActivity.REQUEST_CODE);
             }
         }
     }

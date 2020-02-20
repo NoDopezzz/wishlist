@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeDialogFragment;
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.Episode;
@@ -104,7 +105,10 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
                 if(episode.getUrlImage().equals("")){
                     mEpisodeImage.setImageResource(R.drawable.placeholder_image_not_found);
                 } else {
-                    mThumbnailDownloader.queueMessage(episode.getUrlImage(), this);
+                    int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 100f);
+                    int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 75f);
+
+                    mThumbnailDownloader.queueMessage(episode.getUrlImage(), this,width, height);
                     bindImage(null);
                 }
             } else{
@@ -129,5 +133,9 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
 
     public void clear(){
         mThumbnailDownloader.clearQueue();
+    }
+
+    public void quit(){
+        mThumbnailDownloader.quit();
     }
 }

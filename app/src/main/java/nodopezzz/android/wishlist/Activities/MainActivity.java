@@ -1,12 +1,16 @@
 package nodopezzz.android.wishlist.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import nodopezzz.android.wishlist.Fragments.ListFragment;
 import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
@@ -14,6 +18,9 @@ import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.APIs.TMDBAPI;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final int REQUEST_CODE = 1;
+    public static final int RESULT_ERROR_OPEN = 2;
 
     private BottomNavigationView mNavigationView;
 
@@ -55,6 +62,17 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.navigation_activity_frame, fragment)
                 .commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE){
+            if(resultCode == RESULT_ERROR_OPEN){
+                Log.i("ContentMediaFragment", "result");
+                Snackbar.make(findViewById(R.id.navigation_activity_frame), R.string.error_open, Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 }
 

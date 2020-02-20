@@ -42,6 +42,8 @@ import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 import bg.devlabs.fullscreenvideoview.FullscreenVideoView;
+import nodopezzz.android.wishlist.Activities.MainActivity;
+import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.CastListAdapter;
 import nodopezzz.android.wishlist.Adapters.TVSeasonsListAdapter;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
@@ -49,6 +51,8 @@ import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.Database.DBItemDao;
 import nodopezzz.android.wishlist.Database.Database;
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
+import nodopezzz.android.wishlist.MemoryUtils.ImageSizeCalculator;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.Models.MediaContent;
 import nodopezzz.android.wishlist.Models.Movie;
@@ -207,9 +211,7 @@ public class ContentMediaFragment extends Fragment {
             mFABAnimatorSet.cancel();
         }
 
-        float dp = 24f;
-        Resources r = getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        float px = DimensionsCalculator.calculateDipToPx(getActivity(), 24f);
 
         float startY = mFloatingActionButton.getY();
         float endY = mFABPositionY;
@@ -227,9 +229,7 @@ public class ContentMediaFragment extends Fragment {
             mFABAnimatorSet.cancel();
         }
 
-        float dp = 24f;
-        Resources r = getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        float px = DimensionsCalculator.calculateDipToPx(getActivity(), 24f);
 
         if(mFABPositionY == 0){
             mFABPositionY = mFloatingActionButton.getY();
@@ -335,11 +335,13 @@ public class ContentMediaFragment extends Fragment {
         protected void onPostExecute(MediaContent mediaContent) {
             if(getActivity() == null) return;
             if(mediaContent == null) closeFragment();
+            else {
 
-            mContentItem = mediaContent;
-            new LoadBackgroundImage().execute();
+                mContentItem = mediaContent;
+                new LoadBackgroundImage().execute();
 
-            updateUI();
+                updateUI();
+            }
         }
     }
 
@@ -352,8 +354,25 @@ public class ContentMediaFragment extends Fragment {
                 if(url == null){
                     url = mContentItem.getUrlPoster();
                 }
+
+                final Bitmap bitmap;
                 byte[] bytes = UrlDownloader.getResponseByte(url);
-                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+                if(getActivity() == null) return null;
+                Display display = getActivity().getWindowManager(). getDefaultDisplay();
+                Point size = new Point();
+                display. getSize(size);
+                int width = size. x;
+                int height = (int) DimensionsCalculator.calculateDipToPx(getActivity(), 220f);
+
+                options.inSampleSize = ImageSizeCalculator.calculateInSampleSize(options, width, height);
+                options.inJustDecodeBounds = false;
+                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+                return bitmap;
             } catch (IOException | OutOfMemoryError e) {
                 e.printStackTrace();
             }
@@ -516,22 +535,43 @@ public class ContentMediaFragment extends Fragment {
     }
 
     private void closeFragment(){
+        if(getActivity() == null) return;
+        getActivity().setResult(SearchActivity.RESULT_CODE_ERROR);
+        Log.i(TAG, "closeFragment");
         getActivity().finish();
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if(mCastListAdapter != null){
+            mCastListAdapter.clear();
+        }
+
+        if(mPicturesSliderAdapter != null){
+            mPicturesSliderAdapter.clear();
+        }
+
+        if(mTVSeasonsListAdapter != null){
+            mTVSeasonsListAdapter.clear();
+        }
+    }
+
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if(mPicturesSliderAdapter != null){
-            mPicturesSliderAdapter.clear();
+            mPicturesSliderAdapter.quit();
         }
 
         if(mCastListAdapter != null){
-            mCastListAdapter.clear();
+            mCastListAdapter.quit();
         }
 
         if(mTVSeasonsListAdapter != null){
-            mTVSeasonsListAdapter.clear();
+            mTVSeasonsListAdapter.quit();
         }
     }
 

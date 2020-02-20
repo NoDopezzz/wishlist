@@ -2,9 +2,12 @@ package nodopezzz.android.wishlist.Models;
 
 import android.content.Context;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
 import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
+import nodopezzz.android.wishlist.Activities.MainActivity;
 
 public class SearchItem {
 
@@ -63,15 +66,6 @@ public class SearchItem {
 
     public void setContent(String content) {
         mContent = content;
-    }
-
-    public void onClickSearchItem(Context context){
-        if(mContent.equals(GoogleBooksAPI.CONTENT_BOOKS)){
-            context.startActivity(ContentBookActivity.newInstance(context, mId, mTitle));
-        } else {
-            context.startActivity(ContentMediaActivity.newInstance(context, mContent, mId, mTitle));
-        }
-
     }
 
     @Override

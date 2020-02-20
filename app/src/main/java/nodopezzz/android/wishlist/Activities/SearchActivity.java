@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewTreeObserver;
@@ -12,10 +13,15 @@ import android.view.animation.AccelerateInterpolator;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import nodopezzz.android.wishlist.Fragments.SearchFragment;
 import nodopezzz.android.wishlist.R;
 
 public class SearchActivity extends AppCompatActivity {
+
+    public static final int REQUEST_CODE = 0;
+    public static final int RESULT_CODE_ERROR = 1;
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
     private static final String EXTRA_X = "EXTRA_X";
@@ -78,5 +84,15 @@ public class SearchActivity extends AppCompatActivity {
 
         rootLayout.setVisibility(View.VISIBLE);
         circularReveal.start();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE){
+            if(resultCode == RESULT_CODE_ERROR){
+                Snackbar.make(findViewById(R.id.fragment_frame), R.string.error_open, Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 }

@@ -36,6 +36,7 @@ import nodopezzz.android.wishlist.Adapters.SavedListAdapter;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperDelete;
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.R;
 import nodopezzz.android.wishlist.APIs.TMDBAPI;
 import nodopezzz.android.wishlist.Vibration;
@@ -226,13 +227,7 @@ public class ListFragment extends Fragment {
             mAnimatorSetTrash.cancel();
         }
 
-        float dip = 60f;
-        Resources r = getResources();
-        float px = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dip,
-                r.getDisplayMetrics()
-        );
+        float px = DimensionsCalculator.calculateDipToPx(getActivity(), 60f);
 
         float startY = mDeleteView.getY();
         float endY = mDeleteView.getY() - px;

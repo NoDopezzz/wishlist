@@ -2,16 +2,21 @@ package nodopezzz.android.wishlist.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Handler;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.smarteist.autoimageslider.SliderViewAdapter;
 
 import java.util.List;
 
+import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
@@ -71,8 +76,14 @@ public class PicturesSliderAdapter extends SliderViewAdapter<PicturesSliderAdapt
         public void bindView(int position){
             String url = mPictures.get(position);
             if(mIconCache.getBitmapFromMemory(url) == null) {
-                //TODO Holder
-                mThumbnailDownloader.queueMessage(url, this);
+
+                Display display =((AppCompatActivity) mContext).getWindowManager(). getDefaultDisplay();
+                Point size = new Point();
+                display. getSize(size);
+                int width = size. x;
+                int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 200f);
+
+                mThumbnailDownloader.queueMessage(url, this, width, height);
             } else{
                 bindImage(mIconCache.getBitmapFromMemory(url));
             }
@@ -85,5 +96,9 @@ public class PicturesSliderAdapter extends SliderViewAdapter<PicturesSliderAdapt
 
     public void clear(){
         mThumbnailDownloader.clearQueue();
+    }
+
+    public void quit(){
+        mThumbnailDownloader.quit();
     }
 }

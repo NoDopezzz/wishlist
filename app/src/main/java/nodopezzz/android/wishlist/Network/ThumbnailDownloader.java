@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -12,8 +13,22 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import nodopezzz.android.wishlist.MemoryUtils.ImageSizeCalculator;
+
 public class ThumbnailDownloader<T> extends HandlerThread {
     private static final String TAG = "ThumbnailDownloader";
+
+    private class TargetOptions{
+        public TargetOptions(String urlImage, int reqWidth, int reqHeight) {
+            this.reqWidth = reqWidth;
+            this.reqHeight = reqHeight;
+            this.urlImage = urlImage;
+        }
+
+        public int reqWidth;
+        public int reqHeight;
+        public String urlImage;
+    }
 
     public void setListener(DownloadedListener listener) {
         this.listener = listener;
@@ -30,7 +45,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
     private DownloadedListener listener;
 
-    private Map<T, String> mMap = new HashMap<>();
+    private Map<T, TargetOptions> mMap = new HashMap<>();
     private boolean mHasQuit = false;
 
     public ThumbnailDownloader(String name, Handler responseHandler) {
@@ -53,13 +68,19 @@ public class ThumbnailDownloader<T> extends HandlerThread {
         };
     }
 
-    public void queueMessage(String url, T target){
-        mMap.put(target, url);
+    public void queueMessage(String url, T target, int reqWidth, int reqHeight){
+        if(url == null) mMap.remove(target);
+
+        TargetOptions options = new TargetOptions(url, reqWidth, reqHeight);
+        mMap.put(target, options);
         mRequestHandler.obtainMessage(MESSAGE_CODE, target).sendToTarget();
     }
 
     private void handle(final T target){
-        final String url = mMap.get(target);
+        if(mMap.get(target) == null) return;
+        final String url = mMap.get(target).urlImage;
+        int reqWidth = mMap.get(target).reqWidth;
+        int reqHeight = mMap.get(target).reqHeight;
 
         try {
             if(url == null) return;
@@ -67,12 +88,18 @@ public class ThumbnailDownloader<T> extends HandlerThread {
             try {
                 final Bitmap bitmap;
                 byte[] bytes = UrlDownloader.getResponseByte(url);
-                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+
+                options.inSampleSize = ImageSizeCalculator.calculateInSampleSize(options, reqWidth, reqHeight);
+                options.inJustDecodeBounds = false;
+                bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
 
                 mResponseHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (url != mMap.get(target) || mHasQuit) return;
+                        if (mMap.get(target) == null || !url.equals(mMap.get(target).urlImage) || mHasQuit) return;
 
                         mMap.remove(target);
                         if (listener != null) {
@@ -82,7 +109,6 @@ public class ThumbnailDownloader<T> extends HandlerThread {
                 });
             } catch(OutOfMemoryError error){
                 mMap.remove(target);
-                queueMessage(url, target);
             }
         } catch (IOException e) {
             e.printStackTrace();

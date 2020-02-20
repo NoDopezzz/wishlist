@@ -229,6 +229,14 @@ public class SearchFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         if(mSearchAdapter != null){
+            mSearchAdapter.quit();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if(mSearchAdapter != null){
             mSearchAdapter.clear();
         }
     }

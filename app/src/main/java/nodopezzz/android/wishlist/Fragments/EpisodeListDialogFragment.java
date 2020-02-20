@@ -105,10 +105,18 @@ public class EpisodeListDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if(mEpisodeAdapter != null){
+            mEpisodeAdapter.clear();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if(mEpisodeAdapter != null){
-            mEpisodeAdapter.clear();
+            mEpisodeAdapter.quit();
         }
     }
 }
