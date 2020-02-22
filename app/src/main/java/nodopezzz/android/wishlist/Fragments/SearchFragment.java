@@ -23,13 +23,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
+import nodopezzz.android.wishlist.APIs.GoogleBooksAPIAdapter;
 import nodopezzz.android.wishlist.APIs.TMDBApi;
+import nodopezzz.android.wishlist.Activities.ContentBookActivity;
 import nodopezzz.android.wishlist.Activities.ContentMovieActivity;
 import nodopezzz.android.wishlist.Activities.ContentTVActivity;
 import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.SearchListAdapter;
 import nodopezzz.android.wishlist.Content;
+import nodopezzz.android.wishlist.Models.Book;
 import nodopezzz.android.wishlist.Models.Movie;
+import nodopezzz.android.wishlist.Models.SearchBookResult;
 import nodopezzz.android.wishlist.Models.SearchItem;
 import nodopezzz.android.wishlist.Models.SearchMovieResult;
 import nodopezzz.android.wishlist.Models.SearchTVResult;
@@ -189,12 +194,12 @@ public class SearchFragment extends Fragment {
                 @Override
                 public void onResponse(Call<SearchTVResult> call, Response<SearchTVResult> response) {
                     SearchTVResult result = response.body();
-                    List<SearchTVResult.SearchItemTV> movies = result.getSearchItemTVs();
+                    List<SearchTVResult.SearchItemTV> tvshows = result.getSearchItemTVs();
                     mPage++;
                     mPreviousSize = mSearchItems.size();
                     mSearchItems.remove(null);
-                    if (movies != null && !movies.isEmpty()) {
-                        mSearchItems.addAll(generateSearchItems(movies));
+                    if (tvshows != null && !tvshows.isEmpty()) {
+                        mSearchItems.addAll(generateSearchItems(tvshows));
                     }
 
                     mCurrentState = State.COMPLETE;
@@ -206,6 +211,33 @@ public class SearchFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<SearchTVResult> call, Throwable t) {
+
+                }
+            });
+        } else if(mContent == Content.BOOK){
+            mCall = GoogleBooksAPI.getInstance().getAdapter().search(mQuery, Integer.toString(mPage - 1));
+            mCall.enqueue(new Callback<SearchBookResult>(){
+
+                @Override
+                public void onResponse(Call<SearchBookResult> call, Response<SearchBookResult> response) {
+                    SearchBookResult result = response.body();
+                    List<Book> books = result.getBooks();
+                    mPage++;
+                    mPreviousSize = mSearchItems.size();
+                    mSearchItems.remove(null);
+                    if (books != null && !books.isEmpty()) {
+                        mSearchItems.addAll(generateSearchItems(books));
+                    }
+
+                    mCurrentState = State.COMPLETE;
+                    if (mSearchItems.isEmpty()) {
+                        mCurrentState = State.NOTHING;
+                    }
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(Call<SearchBookResult> call, Throwable t) {
 
                 }
             });
@@ -230,7 +262,7 @@ public class SearchFragment extends Fragment {
                             getActivity().startActivityForResult(ContentTVActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
                             break;
                         case BOOK:
-                            getActivity().startActivityForResult(ContentMovieActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
+                            getActivity().startActivityForResult(ContentBookActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
                             break;
                     }
                 }
@@ -293,12 +325,21 @@ public class SearchFragment extends Fragment {
                 break;
             case BOOK:
                 for (T t : tList){
-                    Movie movie = (Movie)t;
+                    Book book = (Book)t;
+                    String imageUrl = "";
+                    if(book.getVolumeInfo().getImageLinks() != null){
+                        imageUrl = book.getVolumeInfo().getImageLinks().getSmallThumbnail();
+                    }
+
+                    String author = "";
+                    if(book.getVolumeInfo().getAuthors() != null && !book.getVolumeInfo().getAuthors().isEmpty()){
+                        author = book.getVolumeInfo().getAuthors().get(0);
+                    }
                     SearchItem item = new SearchItem(
-                            movie.getTitle(),
-                            movie.getDate(),
-                            movie.getOverview(),
-                            movie.getUrlPoster(), movie.getId());
+                            book.getVolumeInfo().getTitle(),
+                            author,
+                            book.getVolumeInfo().getDescription(),
+                            imageUrl, book.getId());
                     items.add(item);
                 }
                 break;

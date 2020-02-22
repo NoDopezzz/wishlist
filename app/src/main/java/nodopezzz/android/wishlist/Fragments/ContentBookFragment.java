@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,8 @@ import com.ms.square.android.expandabletextview.ExpandableTextView;
 
 import java.io.IOException;
 
+import nodopezzz.android.wishlist.Activities.SearchActivity;
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
 import nodopezzz.android.wishlist.Database.DBItem;
@@ -39,6 +42,9 @@ import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.Models.Book;
 import nodopezzz.android.wishlist.Network.UrlDownloader;
 import nodopezzz.android.wishlist.R;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ContentBookFragment extends Fragment {
     public static final String TAG = "ContentBookFragment";
@@ -72,8 +78,6 @@ public class ContentBookFragment extends Fragment {
     private Database mDatabase;
     private DBItemDao mItemDao;
 
-    private Menu mMenu;
-
     private String mId;
 
     @Override
@@ -91,6 +95,9 @@ public class ContentBookFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_book_content, container, false);
 
         Bundle args = getArguments();
+        if(args == null){
+            closeFragment();
+        }
         mId = args.getString(ARG_ID);
 
         mAuthorView = v.findViewById(R.id.content_book_author);
@@ -103,47 +110,69 @@ public class ContentBookFragment extends Fragment {
         mBookInfoLayout = v.findViewById(R.id.content_book_info);
         mToolbar = v.findViewById(R.id.content_book_toolbar);
 
-        new GetBook().execute(mId);
+        new GetBookDB().execute();
+        getBook();
 
         return v;
     }
 
-    private class GetBook extends AsyncTask<String, Void, Void>{
+    private void getBook(){
+        GoogleBooksAPI.getInstance().getAdapter().getBook(mId).enqueue(new Callback<Book>() {
+            @Override
+            public void onResponse(Call<Book> call, Response<Book> response) {
+                mBook = response.body();
+                mProgressBarLayout.setVisibility(View.GONE);
+                mBookInfoLayout.setVisibility(View.VISIBLE);
+                mOverviewView.setVisibility(View.VISIBLE);
+
+                mTitleView.setText(mBook.getVolumeInfo().getTitle());
+
+                StringBuilder authorsBuilder = new StringBuilder();
+                String authors = "";
+                for (int i = 0; i < mBook.getVolumeInfo().getAuthors().size(); i++) {
+                    authorsBuilder.append(mBook.getVolumeInfo().getAuthors().get(i)).append(", ");
+                }
+                if(authorsBuilder.length() > 0){
+                    authors = authorsBuilder.substring(0, authorsBuilder.length() - 2);
+                }
+
+                mAuthorView.setText(authors);
+                mOverviewView.setText(mBook.getVolumeInfo().getDescription());
+                mPublisherView.setText(mBook.getVolumeInfo().getPublisher());
+
+                if(!mBook.getAccessInfo().getAccessViewStatus().equals("NONE")
+                        && mBook.getAccessInfo().getWebReaderLink() != null){
+                    mButtonReader.setVisibility(View.VISIBLE);
+                    mButtonReader.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(mBook.getAccessInfo().getWebReaderLink()));
+                            startActivity(intent);
+                        }
+                    });
+                }
+                new GetImage().execute();
+            }
+
+            @Override
+            public void onFailure(Call<Book> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private class GetBookDB extends AsyncTask<Void, Void, Void>{
 
         @Override
-        protected Void doInBackground(String... strings) {
-            mBook = GoogleBooksAPI.getBook(strings[0]);
-            mIsSaved = mItemDao.getMovieById(mBook.getId(), GoogleBooksAPI.CONTENT_BOOKS) != null;
+        protected Void doInBackground(Void... strings) {
+            mIsSaved = mItemDao.getMovieById(mId, Content.BOOK.name()) != null;
             return null;
         }
 
         @Override
         protected void onPostExecute(Void argVoid) {
-            if(mBook == null) return;
-
-            mProgressBarLayout.setVisibility(View.GONE);
-            mBookInfoLayout.setVisibility(View.VISIBLE);
-            mOverviewView.setVisibility(View.VISIBLE);
-
-            mTitleView.setText(mBook.getTitle());
-            mAuthorView.setText(mBook.getAuthors());
-            mOverviewView.setText(mBook.getOverview());
-            mPublisherView.setText(mBook.getPublisher());
-
-            if(!mBook.getUrlBook().equals("")){
-                mButtonReader.setVisibility(View.VISIBLE);
-                mButtonReader.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(mBook.getUrlBook()));
-                        startActivity(intent);
-                    }
-                });
-            }
-
             initToolbar();
-            new GetImage().execute();
         }
     }
 
@@ -152,11 +181,9 @@ public class ContentBookFragment extends Fragment {
         @Override
         protected Bitmap doInBackground(Void... voids) {
             try {
-                String url = mBook.getUrlImage();
-                if(url == null){
-                    url = mBook.getThumbnailUrl();
-                }
+                String url = "https://books.google.com/books/content/images/frontcover/" + mBook.getId() + "?fife=w400-h600";
                 byte[] bytes = UrlDownloader.getResponseByte(url);
+
                 return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             } catch (IOException | OutOfMemoryError e) {
                 e.printStackTrace();
@@ -205,19 +232,14 @@ public class ContentBookFragment extends Fragment {
             if(mIsSaved){
                 try {
                     menuItem.setIcon(R.drawable.ic_bookmark_border_black_24dp);
-                    GeneralSingleton.getInstance().getInternalStorage().deleteImage(mBook.getId(), GoogleBooksAPI.CONTENT_BOOKS);
 
-                    DBItem item = new DBItem();
-                    item.setContent(GoogleBooksAPI.CONTENT_BOOKS);
-                    item.setId(mBook.getId());
-                    item.setTitle(mBook.getTitle());
-                    item.setSubtitle(mBook.getAuthors());
-
+                    DBItem item = createItem();
                     new AsyncDatabaseDelete() {
                         @Override
                         protected void onPostExecute(Void aVoid) {
                             mIsSaved = false;
                             showSnackbar(R.string.state_deleted);
+                            GeneralSingleton.getInstance().getInternalStorage().deleteImage(mBook.getId(), Content.BOOK.name());
                         }
                     }.execute(item);
                 } catch(OutOfMemoryError e){
@@ -229,19 +251,15 @@ public class ContentBookFragment extends Fragment {
             } else{
                 try {
                     menuItem.setIcon(R.drawable.ic_bookmark_black_24dp);
-                    GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mBook.getId(), mBook.getUrlImage(), GoogleBooksAPI.CONTENT_BOOKS);
 
-                    DBItem item = new DBItem();
-                    item.setContent(GoogleBooksAPI.CONTENT_BOOKS);
-                    item.setId(mBook.getId());
-                    item.setTitle(mBook.getTitle());
-                    item.setSubtitle(mBook.getAuthors());
+                    DBItem item = createItem();
 
                     new AsyncDatabaseInsert() {
                         @Override
                         protected void onPostExecute(Void aVoid) {
                             mIsSaved = true;
                             showSnackbar(R.string.state_saved);
+                            GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mBook.getId(), "https://books.google.com/books/content/images/frontcover/" + mBook.getId() + "?fife=w400-h600", Content.BOOK.name());
                         }
                     }.execute(item);
                 } catch(OutOfMemoryError e){
@@ -257,5 +275,23 @@ public class ContentBookFragment extends Fragment {
 
     private void showSnackbar(int resId){
         Snackbar.make(getView(), resId, Snackbar.LENGTH_LONG).show();
+    }
+
+    private DBItem createItem(){
+        DBItem item = new DBItem();
+        item.setContent(Content.BOOK.name());
+        item.setId(mBook.getId());
+        item.setTitle(mBook.getVolumeInfo().getTitle());
+        if(mBook.getVolumeInfo().getAuthors() != null) {
+            item.setSubtitle(mBook.getVolumeInfo().getAuthors().get(0));
+        }
+        return item;
+    }
+
+    private void closeFragment(){
+        if(getActivity() == null) return;
+        getActivity().setResult(SearchActivity.RESULT_CODE_ERROR);
+        Log.i(TAG, "closeFragment");
+        getActivity().finish();
     }
 }

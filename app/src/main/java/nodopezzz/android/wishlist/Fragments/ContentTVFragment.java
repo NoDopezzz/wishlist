@@ -197,7 +197,12 @@ public class ContentTVFragment extends Fragment {
         } else {
             mId = args.getString(ARG_ID);
             String title = args.getString(ARG_TITLE);
-            initToolbar(title);
+            try {
+                initToolbar(title);
+            } catch (Exception e) {
+                e.printStackTrace();
+                closeFragment();
+            }
         }
 
         Log.i("Retrofit", "getTVShow()");
@@ -213,11 +218,7 @@ public class ContentTVFragment extends Fragment {
         TMDBApi.getInstance().getAdapter().getShow(mId).enqueue(new Callback<TVShow>() {
             @Override
             public void onResponse(Call<TVShow> call, Response<TVShow> response) {
-                Log.i("Retrofit", response.toString());
                 mTVShow = response.body();
-                if(mTVShow == null){
-                    Log.i("Retrofit", "null");
-                }
                 new ContentTVFragment.LoadDB().execute();
                 new ContentTVFragment.LoadBackgroundImage().execute();
                 getActors();
@@ -225,7 +226,7 @@ public class ContentTVFragment extends Fragment {
 
             @Override
             public void onFailure(Call<TVShow> call, Throwable t) {
-                Log.i("Retrofit", t.toString());
+                closeFragment();
             }
         });
     }
@@ -240,7 +241,7 @@ public class ContentTVFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ActorsResult> call, Throwable t) {
-
+                closeFragment();
             }
         });
     }
@@ -256,6 +257,7 @@ public class ContentTVFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ImageResult> call, Throwable t) {
+                closeFragment();
             }
         });
     }
@@ -268,13 +270,18 @@ public class ContentTVFragment extends Fragment {
                 if(mVideos.isEmpty() && !language.equals("en")){
                     getVideos("en");
                 } else {
-                    updateUI();
+                    try {
+                        updateUI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        closeFragment();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<VideoResponse> call, Throwable t) {
-
+                closeFragment();
             }
         });
     }
@@ -317,7 +324,7 @@ public class ContentTVFragment extends Fragment {
         mFABAnimatorSet.start();
     }
 
-    private void initSlider(){
+    private void initSlider() throws Exception{
         List<String> urlImages = new ArrayList<>();
         for (int i = 1; i < (mImages.size() > 6 ? 6 : mImages.size()); i++){
             urlImages.add(IMAGE_URL_ENDPOINT_ORIGINAL + mImages.get(i).getImageUrl());
@@ -326,7 +333,7 @@ public class ContentTVFragment extends Fragment {
         mPicturesSlider.setSliderAdapter(mPicturesSliderAdapter);
     }
 
-    private void setupVideoPlayer(){
+    private void setupVideoPlayer() throws Exception{
 
         String url = "";
         for (int i = 0; i < mVideos.size(); i++){
@@ -375,7 +382,7 @@ public class ContentTVFragment extends Fragment {
 
     }
 
-    private void initToolbar(String title){
+    private void initToolbar(String title) throws Exception{
 
         mToolbar.setTitle(title);
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
@@ -390,7 +397,7 @@ public class ContentTVFragment extends Fragment {
         });
     }
 
-    private void initCastList(){
+    private void initCastList() throws Exception{
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         mCastListAdapter = new CastListAdapter(getActivity(), mActors.subList(0,(mActors.size() > 10 ? 10 : mActors.size())));
@@ -408,7 +415,12 @@ public class ContentTVFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            initFloatingButton();
+            try {
+                initFloatingButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+                closeFragment();
+            }
         }
     }
 
@@ -452,12 +464,14 @@ public class ContentTVFragment extends Fragment {
         }
     }
 
-    private void updateUI(){
+    private void updateUI() throws Exception{
         mProgressBarLayout.setVisibility(View.GONE);
         mNestedScrollView.setVisibility(View.VISIBLE);
 
         mDateView.setText(formDate(mTVShow.getDate()));
-        mTimeView.setText(mTVShow.getTimes().get(0) + " мин");
+        if(mTVShow.getTimes() != null && !mTVShow.getTimes().isEmpty()) {
+            mTimeView.setText(mTVShow.getTimes().get(0) + " мин");
+        }
         mRateView.setText(mTVShow.getVoteAverage());
         mRateCountView.setText("(" + mTVShow.getVoteCount() + ")");
         mOverviewView.setText(mTVShow.getOverview());
@@ -487,7 +501,7 @@ public class ContentTVFragment extends Fragment {
         initCastList();
     }
 
-    private void initFloatingButton(){
+    private void initFloatingButton() throws Exception{
         ((View)mFloatingActionButton).setVisibility(View.VISIBLE);
         if(mIsSaved){
             mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
@@ -550,7 +564,7 @@ public class ContentTVFragment extends Fragment {
         });
     }
 
-    private void updateUITV(){
+    private void updateUITV() throws Exception{
         mTVShowExtra.setVisibility(View.VISIBLE);
         mNumberSeasonsView.setText(mTVShow.getNumberOfSeasons());
         mStatusView.setText(mTVShow.getStatus());
@@ -560,7 +574,7 @@ public class ContentTVFragment extends Fragment {
 
     }
 
-    private void initSeasonsList(){
+    private void initSeasonsList() throws Exception{
         LinearLayoutManager layoutManager =
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         mTVSeasonsListAdapter = new TVSeasonsListAdapter(getActivity(), this, mTVShow.getSeasons(), mTVShow.getId());

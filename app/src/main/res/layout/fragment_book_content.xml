@@ -1,137 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+
+<LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+    <androidx.appcompat.widget.Toolbar
 
-    <LinearLayout
+        android:id="@+id/content_book_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/transparent"/>
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/content_book_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/transparent"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@drawable/shadow_reverse_view"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:background="@drawable/shadow_reverse_view"/>
+    <ScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
         <LinearLayout
-            android:id="@+id/content_book_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="40dp">
-            <androidx.cardview.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginBottom="30dp"
-                android:layout_marginEnd="30dp"
-                app:cardElevation="5dp"
-                app:cardCornerRadius="4dp">
-                <ImageView
-                    android:id="@+id/content_book_image"
-                    android:layout_width="120dp"
-                    android:layout_height="180dp"
-                    android:scaleType="centerCrop"/>
-            </androidx.cardview.widget.CardView>
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/content_book_info"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_vertical"
-                android:layout_marginEnd="30dp"
-                android:layout_marginBottom="30dp">
-
-                <TextView
-                    android:id="@+id/content_book_title"
+                android:orientation="horizontal"
+                android:paddingTop="40dp">
+                <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="2dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginBottom="30dp"
+                    android:layout_marginEnd="30dp"
+                    app:cardElevation="5dp"
+                    app:cardCornerRadius="4dp">
+                    <ImageView
+                        android:id="@+id/content_book_image"
+                        android:layout_width="120dp"
+                        android:layout_height="180dp"
+                        android:scaleType="centerCrop"/>
+                </androidx.cardview.widget.CardView>
 
-                    android:textColor="@android:color/black"
-                    android:textSize="20sp"/>
-
-                <TextView
-                    android:id="@+id/content_book_author"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="2dp"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="30dp">
 
-                    android:textSize="16sp"/>
+                    <TextView
+                        android:id="@+id/content_book_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
 
-                <TextView
-                    android:id="@+id/content_book_publisher"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="2dp"
+                        android:textColor="@android:color/black"
+                        android:textSize="20sp"/>
 
-                    android:textSize="16sp"/>
+                    <TextView
+                        android:id="@+id/content_book_author"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:id="@+id/content_book_publisher"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+
+                        android:textSize="16sp"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
-
-        <com.ms.square.android.expandabletextview.ExpandableTextView
-            android:id="@+id/content_book_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            app:maxCollapsedLines="5"
-            app:animDuration="400">
-
-            <TextView
-                android:id="@+id/expandable_text"
+            <com.ms.square.android.expandabletextview.ExpandableTextView
+                android:id="@+id/content_book_overview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                app:maxCollapsedLines="5"
+                app:animDuration="400">
 
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="@android:color/primary_text_light"
-                android:textSize="16sp"
-                android:lineSpacingExtra="10dp"/>
+                <TextView
+                    android:id="@+id/expandable_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
 
-            <ImageButton
-                android:id="@id/expand_collapse"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|bottom"
-                android:background="@android:color/transparent"/>
-        </com.ms.square.android.expandabletextview.ExpandableTextView>
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textSize="16sp"
+                    android:lineSpacingExtra="10dp"/>
 
-        <Button
-            android:id="@+id/content_book_button_reader"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:layout_margin="20dp"
-            android:background="@color/colorPrimary"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
+                <ImageButton
+                    android:id="@id/expand_collapse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:background="@android:color/transparent"/>
+            </com.ms.square.android.expandabletextview.ExpandableTextView>
 
-            android:text="Читать фрагмент"/>
+            <Button
+                android:id="@+id/content_book_button_reader"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:background="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
 
-        <RelativeLayout
-            android:id="@+id/content_book_progressbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                android:text="Читать фрагмент"/>
 
-            <ProgressBar
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_centerInParent="true"/>
+            <RelativeLayout
+                android:id="@+id/content_book_progressbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        </RelativeLayout>
+                <ProgressBar
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_centerInParent="true"/>
 
-    </LinearLayout>
-</ScrollView>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

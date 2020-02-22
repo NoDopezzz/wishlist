@@ -1,16 +1,153 @@
 package nodopezzz.android.wishlist.Models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
 public class Book{
+
+    @SerializedName("id")
+    @Expose
     private String mId;
-    private String mTitle;
-    private String mAuthors;
-    private String mDate;
-    private String mOverview;
-    private String mThumbnailUrl;
-    private String mUrlImage;
-    private String mCategories;
-    private String urlBook;
-    private String mPublisher;
+
+    @SerializedName("volumeInfo")
+    @Expose
+    private VolumeInfo mVolumeInfo;
+
+    @SerializedName("accessInfo")
+    @Expose
+    private AccessInfo mAccessInfo;
+
+    public class VolumeInfo{
+
+        @SerializedName("title")
+        @Expose
+        private String mTitle;
+
+        @SerializedName("publishedDate")
+        @Expose
+        private String mPublishedDate;
+
+        @SerializedName("description")
+        @Expose
+        private String mDescription;
+
+        @SerializedName("authors")
+        @Expose
+        private List<String> mAuthors;
+
+        @SerializedName("categories")
+        @Expose
+        private List<String> mCategories;
+
+        @SerializedName("publisher")
+        @Expose
+        private String mPublisher;
+
+        @SerializedName("imageLinks")
+        @Expose
+        private ImageLinks mImageLinks;
+
+        public String getTitle() {
+            return mTitle;
+        }
+
+        public void setTitle(String title) {
+            mTitle = title;
+        }
+
+        public String getPublishedDate() {
+            return mPublishedDate;
+        }
+
+        public void setPublishedDate(String publishedDate) {
+            mPublishedDate = publishedDate;
+        }
+
+        public String getDescription() {
+            return mDescription;
+        }
+
+        public void setDescription(String description) {
+            mDescription = description;
+        }
+
+        public List<String> getAuthors() {
+            return mAuthors;
+        }
+
+        public void setAuthors(List<String> authors) {
+            mAuthors = authors;
+        }
+
+        public List<String> getCategories() {
+            return mCategories;
+        }
+
+        public void setCategories(List<String> categories) {
+            mCategories = categories;
+        }
+
+        public ImageLinks getImageLinks() {
+            return mImageLinks;
+        }
+
+        public void setImageLinks(ImageLinks imageLinks) {
+            mImageLinks = imageLinks;
+        }
+
+        public String getPublisher() {
+            return mPublisher;
+        }
+
+        public void setPublisher(String publisher) {
+            mPublisher = publisher;
+        }
+
+
+        public class ImageLinks{
+
+            @SerializedName("smallThumbnail")
+            @Expose
+            private String mSmallThumbnail;
+
+            public String getSmallThumbnail() {
+                return mSmallThumbnail;
+            }
+
+            public void setSmallThumbnail(String smallThumbnail) {
+                mSmallThumbnail = smallThumbnail;
+            }
+        }
+    }
+
+    public class AccessInfo{
+
+        @SerializedName("accessViewStatus")
+        @Expose
+        private String mAccessViewStatus;
+
+        @SerializedName("webReaderLink")
+        @Expose
+        private String mWebReaderLink;
+
+        public String getAccessViewStatus() {
+            return mAccessViewStatus;
+        }
+
+        public void setAccessViewStatus(String accessViewStatus) {
+            mAccessViewStatus = accessViewStatus;
+        }
+
+        public String getWebReaderLink() {
+            return mWebReaderLink;
+        }
+
+        public void setWebReaderLink(String webReaderLink) {
+            mWebReaderLink = webReaderLink;
+        }
+    }
 
     public String getId() {
         return mId;
@@ -20,75 +157,19 @@ public class Book{
         mId = id;
     }
 
-    public String getTitle() {
-        return mTitle;
+    public VolumeInfo getVolumeInfo() {
+        return mVolumeInfo;
     }
 
-    public void setTitle(String title) {
-        mTitle = title;
+    public void setVolumeInfo(VolumeInfo volumeInfo) {
+        mVolumeInfo = volumeInfo;
     }
 
-    public String getAuthors() {
-        return mAuthors;
+    public AccessInfo getAccessInfo() {
+        return mAccessInfo;
     }
 
-    public void setAuthors(String authors) {
-        mAuthors = authors;
-    }
-
-    public String getDate() {
-        return mDate;
-    }
-
-    public void setDate(String date) {
-        mDate = date;
-    }
-
-    public String getOverview() {
-        return mOverview;
-    }
-
-    public void setOverview(String overview) {
-        mOverview = overview;
-    }
-
-    public String getThumbnailUrl() {
-        return mThumbnailUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        mThumbnailUrl = thumbnailUrl;
-    }
-
-    public String getUrlImage() {
-        return mUrlImage;
-    }
-
-    public void setUrlImage(String urlImage) {
-        mUrlImage = urlImage;
-    }
-
-    public String getCategories() {
-        return mCategories;
-    }
-
-    public void setCategories(String categories) {
-        mCategories = categories;
-    }
-
-    public String getUrlBook() {
-        return urlBook;
-    }
-
-    public void setUrlBook(String urlBook) {
-        this.urlBook = urlBook;
-    }
-
-    public String getPublisher() {
-        return mPublisher;
-    }
-
-    public void setPublisher(String publisher) {
-        mPublisher = publisher;
+    public void setAccessInfo(AccessInfo accessInfo) {
+        mAccessInfo = accessInfo;
     }
 }

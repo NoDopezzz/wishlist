@@ -191,7 +191,12 @@ public class ContentMovieFragment extends Fragment {
         } else {
             mId = args.getString(ARG_ID);
             String title = args.getString(ARG_TITLE);
-            initToolbar(title);
+            try {
+                initToolbar(title);
+            } catch (Exception e) {
+                e.printStackTrace();
+                closeFragment();
+            }
         }
 
         Log.i("Retrofit", "ContentMovieFragment");
@@ -217,6 +222,7 @@ public class ContentMovieFragment extends Fragment {
 
             @Override
             public void onFailure(Call<Movie> call, Throwable t) {
+                closeFragment();
             }
         });
     }
@@ -231,7 +237,7 @@ public class ContentMovieFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ActorsResult> call, Throwable t) {
-
+                closeFragment();
             }
         });
     }
@@ -247,6 +253,7 @@ public class ContentMovieFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ImageResult> call, Throwable t) {
+                closeFragment();
             }
         });
     }
@@ -259,13 +266,18 @@ public class ContentMovieFragment extends Fragment {
                 if(mVideos.isEmpty() && !language.equals("en")){
                     getVideos("en");
                 } else {
-                    updateUI();
+                    try {
+                        updateUI();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        closeFragment();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<VideoResponse> call, Throwable t) {
-
+                closeFragment();
             }
         });
     }
@@ -298,7 +310,6 @@ public class ContentMovieFragment extends Fragment {
         }
 
         float startY = mFloatingActionButton.getY();
-        //float endY = mFABPositionY + mFloatingActionButton.getHeight() + px;
         float endY = getView().getHeight();
 
         ObjectAnimator animator = ObjectAnimator.ofFloat(mFloatingActionButton, "y", startY, endY)
@@ -309,7 +320,7 @@ public class ContentMovieFragment extends Fragment {
         mFABAnimatorSet.start();
     }
 
-    private void initSlider(){
+    private void initSlider() throws Exception{
         List<String> urlImages = new ArrayList<>();
         for (int i = 1; i < (mImages.size() > 6 ? 6 : mImages.size()); i++){
             urlImages.add(IMAGE_URL_ENDPOINT_ORIGINAL + mImages.get(i).getImageUrl());
@@ -318,7 +329,7 @@ public class ContentMovieFragment extends Fragment {
         mPicturesSlider.setSliderAdapter(mPicturesSliderAdapter);
     }
 
-    private void setupVideoPlayer(){
+    private void setupVideoPlayer() throws Exception{
 
         String url = "";
         for (int i = 0; i < mVideos.size(); i++){
@@ -358,7 +369,7 @@ public class ContentMovieFragment extends Fragment {
         }.extract(url, true, true);
     }
 
-    private void initVideoPlayer(String url){
+    private void initVideoPlayer(String url) {
         try {
             mVideoPlayer.videoUrl(url);
             mVideoPlayer.hideFullscreenButton();
@@ -368,7 +379,7 @@ public class ContentMovieFragment extends Fragment {
 
     }
 
-    private void initToolbar(String title){
+    private void initToolbar(String title) throws Exception{
 
         mToolbar.setTitle(title);
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
@@ -383,7 +394,7 @@ public class ContentMovieFragment extends Fragment {
         });
     }
 
-    private void initCastList(){
+    private void initCastList() throws Exception{
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
         mCastListAdapter = new CastListAdapter(getActivity(), mActors.subList(0,(mActors.size() > 10 ? 10 : mActors.size())));
@@ -401,7 +412,12 @@ public class ContentMovieFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            initFloatingButton();
+            try {
+                initFloatingButton();
+            } catch (Exception e) {
+                e.printStackTrace();
+                closeFragment();
+            }
         }
     }
 
@@ -445,7 +461,7 @@ public class ContentMovieFragment extends Fragment {
         }
     }
 
-    private void updateUI(){
+    private void updateUI() throws Exception{
         mProgressBarLayout.setVisibility(View.GONE);
         mNestedScrollView.setVisibility(View.VISIBLE);
 
@@ -480,7 +496,7 @@ public class ContentMovieFragment extends Fragment {
         initCastList();
     }
 
-    private void initFloatingButton(){
+    private void initFloatingButton() throws Exception{
         ((View)mFloatingActionButton).setVisibility(View.VISIBLE);
         if(mIsSaved){
             mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
@@ -564,7 +580,7 @@ public class ContentMovieFragment extends Fragment {
         return "";
     }
 
-    private void updateUIMovie(){
+    private void updateUIMovie() throws Exception{
         mMovieExtra.setVisibility(View.VISIBLE);
         if(mMovie.getRevenue() == 0 || mMovie.getBudget() == 0){
             mRevenueView.setVisibility(View.GONE);
