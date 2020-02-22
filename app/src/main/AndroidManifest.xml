@@ -18,7 +18,7 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.ContentMediaActivity"
+            android:name=".Activities.ContentMovieActivity"
             android:theme="@style/ContentActivityTheme"
             />
         <activity android:name=".Activities.MainActivity">
@@ -32,6 +32,8 @@
             android:theme="@style/ContentActivityTheme"/>
         <activity android:name=".Activities.SearchActivity"
             android:theme="@style/SearchActivityTheme"/>
+        <activity android:name=".Activities.ContentTVActivity"
+            android:theme="@style/ContentActivityTheme"/>
     </application>
 
 </manifest>

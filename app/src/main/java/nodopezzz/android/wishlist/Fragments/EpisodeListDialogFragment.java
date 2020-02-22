@@ -1,8 +1,8 @@
 package nodopezzz.android.wishlist.Fragments;
 
 import android.app.Dialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -18,20 +18,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Adapters.EpisodeListAdapter;
-import nodopezzz.android.wishlist.Models.Episode;
+import nodopezzz.android.wishlist.Models.Season;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.APIs.TMDBAPI;
+import nodopezzz.android.wishlist.APIs.TMDBApi;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EpisodeListDialogFragment extends DialogFragment {
 
-    public static final String ARG_SEASON_ID = "ARG_SEASON_ID";
+    public static final String ARG_TV_ID = "ARG_TV_ID";
     public static final String ARG_NUMBER_OF_SEASON = "ARG_SEASON_OF_NUMBER";
     public static final String ARG_SEASON_TITLE = "ARG_TITLE";
 
-    public static EpisodeListDialogFragment newInstance(String title, String seasonId, String numberOfEpisode){
+    public static EpisodeListDialogFragment newInstance(String title, String tvId, String numberOfEpisode){
         EpisodeListDialogFragment fragment = new EpisodeListDialogFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ARG_SEASON_ID, seasonId);
+        bundle.putString(ARG_TV_ID, tvId);
         bundle.putString(ARG_NUMBER_OF_SEASON, numberOfEpisode);
         bundle.putString(ARG_SEASON_TITLE, title);
         fragment.setArguments(bundle);
@@ -47,7 +50,7 @@ public class EpisodeListDialogFragment extends DialogFragment {
     private RecyclerView mEpisodeList;
     private TextView mNothingView;
 
-    private List<Episode> mEpisodes;
+    private List<Season.Episode> mEpisodes;
     private EpisodeListAdapter mEpisodeAdapter;
 
     @NonNull
@@ -57,8 +60,10 @@ public class EpisodeListDialogFragment extends DialogFragment {
 
         Bundle args = getArguments();
         mTitle = args.getString(ARG_SEASON_TITLE);
-        mId = args.getString(ARG_SEASON_ID);
+        mId = args.getString(ARG_TV_ID);
         mSeasonNumber = args.getString(ARG_NUMBER_OF_SEASON);
+
+        Log.i("Retrofit", "id: " + mId);
 
         mTitleView = v.findViewById(R.id.episode_list_title);
         mProgressBar = v.findViewById(R.id.episode_list_progressbar);
@@ -67,25 +72,23 @@ public class EpisodeListDialogFragment extends DialogFragment {
 
         mTitleView.setText(mTitle);
 
-        new GetEpisodes().execute();
+        TMDBApi.getInstance().getAdapter().getSeason(mId, mSeasonNumber).enqueue(new Callback<Season>() {
+            @Override
+            public void onResponse(Call<Season> call, Response<Season> response) {
+                Log.i("Retrofit", response.toString());
+                mEpisodes = response.body().getEpisodes();
+                updateUI();
+            }
+
+            @Override
+            public void onFailure(Call<Season> call, Throwable t) {
+                Log.i("Retrofit", t.toString());
+            }
+        });
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .create();
-    }
-
-    private class GetEpisodes extends AsyncTask<Void, Void, List<Episode>>{
-
-        @Override
-        protected List<Episode> doInBackground(Void... voids) {
-            return TMDBAPI.getEpisodes(mId, mSeasonNumber);
-        }
-
-        @Override
-        protected void onPostExecute(List<Episode> episodes) {
-            mEpisodes = episodes;
-            updateUI();
-        }
     }
 
     private void updateUI(){

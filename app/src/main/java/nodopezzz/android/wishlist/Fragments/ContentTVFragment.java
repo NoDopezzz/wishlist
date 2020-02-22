@@ -2,7 +2,6 @@ package nodopezzz.android.wishlist.Fragments;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -10,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,15 +35,19 @@ import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.smarteist.autoimageslider.SliderView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 import bg.devlabs.fullscreenvideoview.FullscreenVideoView;
-import nodopezzz.android.wishlist.Activities.MainActivity;
+import nodopezzz.android.wishlist.APIs.TMDBApi;
 import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.CastListAdapter;
 import nodopezzz.android.wishlist.Adapters.TVSeasonsListAdapter;
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseInsert;
 import nodopezzz.android.wishlist.Database.DBItem;
@@ -53,26 +55,32 @@ import nodopezzz.android.wishlist.Database.DBItemDao;
 import nodopezzz.android.wishlist.Database.Database;
 import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.MemoryUtils.ImageSizeCalculator;
+import nodopezzz.android.wishlist.Models.ActorsResult;
+import nodopezzz.android.wishlist.Models.ImageResult;
+import nodopezzz.android.wishlist.Models.VideoResponse;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
-import nodopezzz.android.wishlist.Models.MediaContent;
-import nodopezzz.android.wishlist.Models.Movie;
 import nodopezzz.android.wishlist.Models.TVShow;
 import nodopezzz.android.wishlist.Network.UrlDownloader;
 import nodopezzz.android.wishlist.Adapters.PicturesSliderAdapter;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.APIs.TMDBAPI;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class ContentMediaFragment extends Fragment {
-    private static final String TAG = "ContentMediaFragment";
+import static nodopezzz.android.wishlist.APIs.TMDBApi.IMAGE_URL_ENDPOINT_ORIGINAL;
+import static nodopezzz.android.wishlist.APIs.TMDBApi.YOUTUBE_ENDPOINT;
+import static nodopezzz.android.wishlist.DataParser.formDate;
+import static nodopezzz.android.wishlist.DataParser.formYear;
 
-    private static final String ARG_CONTENT = "ARG_CONTENT";
+public class ContentTVFragment extends Fragment {
+    private static final String TAG = "ContentTVFragment";
+
     private static final String ARG_ID = "ARG_ID";
     private static final String ARG_TITLE = "ARG_TITLE";
 
-    public static ContentMediaFragment newInstance(String content, String id, String title){
-        ContentMediaFragment fragment = new ContentMediaFragment();
+    public static ContentTVFragment newInstance(String id, String title){
+        ContentTVFragment fragment = new ContentTVFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CONTENT, content);
         args.putString(ARG_ID, id);
         args.putString(ARG_TITLE, title);
         fragment.setArguments(args);
@@ -80,8 +88,6 @@ public class ContentMediaFragment extends Fragment {
     }
 
     private String mId;
-    private MediaContent mContentItem;
-    private String mContent;
 
     private boolean mIsSaved = false;
     private Database mDatabase;
@@ -89,7 +95,6 @@ public class ContentMediaFragment extends Fragment {
 
     private ImageView mBackgroundView;
     private Toolbar mToolbar;
-    private AppBarLayout mAppBarLayout;
 
     private NestedScrollView mNestedScrollView;
     private RelativeLayout mProgressBarLayout;
@@ -107,15 +112,10 @@ public class ContentMediaFragment extends Fragment {
 
     private LinearLayout mPicturesFrame;
     private LinearLayout mCastFrame;
-    private LinearLayout mMoneyTextLayout;
 
     private FullscreenVideoView mVideoPlayer;
     private SliderView mPicturesSlider;
     private PicturesSliderAdapter mPicturesSliderAdapter;
-
-    private LinearLayout mMovieExtra;
-    private TextView mBudgetView;
-    private TextView mRevenueView;
 
     private LinearLayout mTVShowExtra;
     private TextView mStatusView;
@@ -129,6 +129,12 @@ public class ContentMediaFragment extends Fragment {
     private AnimatorSet mFABAnimatorSet;
     private float mFABPositionY = 0;
 
+    private TVShow mTVShow;
+    private List<ActorsResult.Actor> mActors;
+    private List<ImageResult.Image> mImages;
+    private List<VideoResponse.Video> mVideos;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,9 +146,8 @@ public class ContentMediaFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_media_content, container, false);
+        View v = inflater.inflate(R.layout.fragment_tv_content, container, false);
 
-        mAppBarLayout = v.findViewById(R.id.content_appbar);
         mBackgroundView = v.findViewById(R.id.content_image);
         mToolbar = v.findViewById(R.id.content_toolbar);
 
@@ -153,11 +158,6 @@ public class ContentMediaFragment extends Fragment {
         mRateCountView = v.findViewById(R.id.content_rating_count);
         mOverviewView = v.findViewById(R.id.content_overview);
         mCastListView = v.findViewById(R.id.content_cast_list);
-
-        mMovieExtra = v.findViewById(R.id.content_movie_extra);
-        mBudgetView = v.findViewById(R.id.content_budget);
-        mRevenueView = v.findViewById(R.id.content_revenue);
-        mMoneyTextLayout = v.findViewById(R.id.content_media_money_text);
 
         mTVShowExtra = v.findViewById(R.id.content_tvshow_extra);
         mNumberSeasonsView = v.findViewById(R.id.content_tvshow_numberseasons);
@@ -197,21 +197,92 @@ public class ContentMediaFragment extends Fragment {
         } else {
             mId = args.getString(ARG_ID);
             String title = args.getString(ARG_TITLE);
-            mContent = args.getString(ARG_CONTENT);
             initToolbar(title);
         }
 
-        new LoadContent().execute();
+        Log.i("Retrofit", "getTVShow()");
+        getTVShow();
 
         return v;
+    }
+
+    private void getTVShow(){
+        mProgressBarLayout.setVisibility(View.VISIBLE);
+        mNestedScrollView.setVisibility(View.GONE);
+
+        TMDBApi.getInstance().getAdapter().getShow(mId).enqueue(new Callback<TVShow>() {
+            @Override
+            public void onResponse(Call<TVShow> call, Response<TVShow> response) {
+                Log.i("Retrofit", response.toString());
+                mTVShow = response.body();
+                if(mTVShow == null){
+                    Log.i("Retrofit", "null");
+                }
+                new ContentTVFragment.LoadDB().execute();
+                new ContentTVFragment.LoadBackgroundImage().execute();
+                getActors();
+            }
+
+            @Override
+            public void onFailure(Call<TVShow> call, Throwable t) {
+                Log.i("Retrofit", t.toString());
+            }
+        });
+    }
+
+    private void getActors(){
+        TMDBApi.getInstance().getAdapter().getTVActors(mId).enqueue(new Callback<ActorsResult>() {
+            @Override
+            public void onResponse(Call<ActorsResult> call, Response<ActorsResult> response) {
+                mActors = response.body().getActors();
+                getUrlImages();
+            }
+
+            @Override
+            public void onFailure(Call<ActorsResult> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getUrlImages(){
+        TMDBApi.getInstance().getAdapter().getTVImages(mId).enqueue(new Callback<ImageResult>() {
+            @Override
+            public void onResponse(Call<ImageResult> call, Response<ImageResult> response) {
+                Log.i("Retrofit", "Images: " + response.toString());
+                mImages = response.body().getImages();
+                getVideos("ru");
+            }
+
+            @Override
+            public void onFailure(Call<ImageResult> call, Throwable t) {
+            }
+        });
+    }
+
+    private void getVideos(final String language){
+        TMDBApi.getInstance().getAdapter().getTVVideos(mId, language).enqueue(new Callback<VideoResponse>() {
+            @Override
+            public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
+                mVideos = response.body().getVideos();
+                if(mVideos.isEmpty() && !language.equals("en")){
+                    getVideos("en");
+                } else {
+                    updateUI();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<VideoResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     private void animateFABShow(){
         if (mFABAnimatorSet.isRunning()){
             mFABAnimatorSet.cancel();
         }
-
-        float px = DimensionsCalculator.calculateDipToPx(getActivity(), 24f);
 
         float startY = mFloatingActionButton.getY();
         float endY = mFABPositionY;
@@ -247,11 +318,29 @@ public class ContentMediaFragment extends Fragment {
     }
 
     private void initSlider(){
-        mPicturesSliderAdapter = new PicturesSliderAdapter(getActivity(), mContentItem.getUrlImages());
+        List<String> urlImages = new ArrayList<>();
+        for (int i = 1; i < (mImages.size() > 6 ? 6 : mImages.size()); i++){
+            urlImages.add(IMAGE_URL_ENDPOINT_ORIGINAL + mImages.get(i).getImageUrl());
+        }
+        mPicturesSliderAdapter = new PicturesSliderAdapter(getActivity(), urlImages);
         mPicturesSlider.setSliderAdapter(mPicturesSliderAdapter);
     }
 
     private void setupVideoPlayer(){
+
+        String url = "";
+        for (int i = 0; i < mVideos.size(); i++){
+            if(mVideos.get(i).getType().equals("Trailer") &&
+                    mVideos.get(i).getSite().equals("YouTube")){
+                url = YOUTUBE_ENDPOINT + "?v=" + mVideos.get(i).getKey();
+            }
+        }
+
+        if(url.equals("")) {
+            mVideoPlayer.setVisibility(View.GONE);
+            return;
+        }
+
         new YouTubeExtractor(getActivity()) {
             @Override
             public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
@@ -273,7 +362,7 @@ public class ContentMediaFragment extends Fragment {
                     mVideoPlayer.setVisibility(View.GONE);
                 }
             }
-        }.extract(mContentItem.getYoutubeUrl(), true, true);
+        }.extract(url, true, true);
     }
 
     private void initVideoPlayer(String url){
@@ -304,44 +393,22 @@ public class ContentMediaFragment extends Fragment {
     private void initCastList(){
         LinearLayoutManager layoutManager
                 = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        mCastListAdapter = new CastListAdapter(getActivity(), mContentItem.getCast());
+        mCastListAdapter = new CastListAdapter(getActivity(), mActors.subList(0,(mActors.size() > 10 ? 10 : mActors.size())));
         mCastListView.setLayoutManager(layoutManager);
         mCastListView.setAdapter(mCastListAdapter);
     }
 
-    private void initSeasonsList(){
-        LinearLayoutManager layoutManager =
-                new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-        mTVSeasonsListAdapter = new TVSeasonsListAdapter(getActivity(), this, ((TVShow)mContentItem).getSeasons());
-        mTVSeasonsList.setLayoutManager(layoutManager);
-        mTVSeasonsList.setAdapter(mTVSeasonsListAdapter);
-    }
-
-    private class LoadContent extends AsyncTask<Void, Void, MediaContent>{
+    private class LoadDB extends AsyncTask<Void, Void, Void>{
 
         @Override
-        protected void onPreExecute() {
-            mProgressBarLayout.setVisibility(View.VISIBLE);
-            mNestedScrollView.setVisibility(View.GONE);
+        protected Void doInBackground(Void... voids) {
+            mIsSaved = mItemDao.getMovieById(mId, Content.TV.name()) != null;
+            return null;
         }
 
         @Override
-        protected MediaContent doInBackground(Void... voids) {
-            mIsSaved = mItemDao.getMovieById(mId, mContent) != null;
-            return TMDBAPI.getContent(mContent, mId);
-        }
-
-        @Override
-        protected void onPostExecute(MediaContent mediaContent) {
-            if(getActivity() == null) return;
-            if(mediaContent == null) closeFragment();
-            else {
-
-                mContentItem = mediaContent;
-                new LoadBackgroundImage().execute();
-
-                updateUI();
-            }
+        protected void onPostExecute(Void aVoid) {
+            initFloatingButton();
         }
     }
 
@@ -350,9 +417,9 @@ public class ContentMediaFragment extends Fragment {
         @Override
         protected Bitmap doInBackground(Void... args) {
             try {
-                String url = mContentItem.getUrlBackground();
-                if(url == null){
-                    url = mContentItem.getUrlPoster();
+                String url = IMAGE_URL_ENDPOINT_ORIGINAL + mTVShow.getUrlBackground();
+                if(mTVShow.getUrlBackground() == null || mTVShow.getUrlBackground().equals("null")){
+                    url = IMAGE_URL_ENDPOINT_ORIGINAL + mTVShow.getUrlPoster();
                 }
 
                 final Bitmap bitmap;
@@ -389,14 +456,15 @@ public class ContentMediaFragment extends Fragment {
         mProgressBarLayout.setVisibility(View.GONE);
         mNestedScrollView.setVisibility(View.VISIBLE);
 
-        mDateView.setText(mContentItem.getDate());
-        mTimeView.setText(mContentItem.getTime() + " мин");
-        mRateView.setText(mContentItem.getVoteAverage());
-        mRateCountView.setText("(" + mContentItem.getVoteCount() + ")");
-        mOverviewView.setText(mContentItem.getOverview());
+        mDateView.setText(formDate(mTVShow.getDate()));
+        mTimeView.setText(mTVShow.getTimes().get(0) + " мин");
+        mRateView.setText(mTVShow.getVoteAverage());
+        mRateCountView.setText("(" + mTVShow.getVoteCount() + ")");
+        mOverviewView.setText(mTVShow.getOverview());
 
         StringBuilder genres = new StringBuilder();
-        for (String genre : mContentItem.getGenres()){
+        for (int i = 0; i < mTVShow.getGenres().size(); i++){
+            String genre = mTVShow.getGenres().get(i).getName();
             genres.append(genre).append(", ");
         }
         if(genres.length() != 0) {
@@ -404,24 +472,19 @@ public class ContentMediaFragment extends Fragment {
         }
         mGenreView.setText(genres.toString());
 
-        if(mContentItem.getCast().isEmpty()){
+        if(mActors.isEmpty()){
             mCastFrame.setVisibility(View.GONE);
         }
-        if(mContentItem.getUrlImages().isEmpty()){
+        if(mImages.isEmpty()){
             mPicturesFrame.setVisibility(View.GONE);
         }
 
-        if(mContent.equals(TMDBAPI.CONTENT_MOVIE)){
-            updateUIMovie();
-        } else if(mContent.equals((TMDBAPI.CONTENT_TV))){
-            updateUITV();
-        }
+        updateUITV();
 
         setupVideoPlayer();
         initSlider();
-        initToolbar(mContentItem.getTitle());
+        initToolbar(mTVShow.getTitle());
         initCastList();
-        initFloatingButton();
     }
 
     private void initFloatingButton(){
@@ -436,27 +499,15 @@ public class ContentMediaFragment extends Fragment {
             public void onClick(View v) {
                 if(mIsSaved){
                     try {
-                        GeneralSingleton.getInstance().getInternalStorage().deleteImage(mId, mContent);
+                        GeneralSingleton.getInstance().getInternalStorage().deleteImage(mId, Content.MOVIE.name());
                         mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_border_white_24dp);
 
                         DBItem item = new DBItem();
-                        item.setContent(mContent);
+                        item.setContent(Content.MOVIE.name());
                         item.setId(mId);
-                        item.setTitle(mContentItem.getTitle());
-                        if (mContent.equals(TMDBAPI.CONTENT_MOVIE)) {
-                            item.setSubtitle(mContentItem.getYear());
-                        } else {
-                            String seasonLine = "";
-                            int seasonNumber = Integer.parseInt(((TVShow) mContentItem).getNumberOfSeasons());
-                            if (seasonNumber % 10 == 1) {
-                                seasonLine = " сезон";
-                            } else if (seasonNumber % 10 < 5) {
-                                seasonLine = " сезона";
-                            } else {
-                                seasonLine = " сезонов";
-                            }
-                            item.setSubtitle(seasonNumber + seasonLine);
-                        }
+                        item.setTitle(mTVShow.getTitle());
+                        item.setSubtitle(formYear(mTVShow.getDate()));
+
                         new AsyncDatabaseDelete() {
                             @Override
                             protected void onPostExecute(Void aVoid) {
@@ -472,28 +523,15 @@ public class ContentMediaFragment extends Fragment {
 
                 } else{
                     try {
-                        GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mId, mContentItem.getUrlPoster(), mContent);
+                        GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mId, IMAGE_URL_ENDPOINT_ORIGINAL + mTVShow.getUrlPoster(), Content.TV.name());
 
                         mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
 
                         DBItem item = new DBItem();
-                        item.setContent(mContent);
+                        item.setContent(Content.TV.name());
                         item.setId(mId);
-                        item.setTitle(mContentItem.getTitle());
-                        if (mContent.equals(TMDBAPI.CONTENT_MOVIE)) {
-                            item.setSubtitle(mContentItem.getYear());
-                        } else {
-                            String seasonLine = "";
-                            int seasonNumber = Integer.parseInt(((TVShow) mContentItem).getNumberOfSeasons());
-                            if (seasonNumber % 10 == 1) {
-                                seasonLine = " сезон";
-                            } else if (seasonNumber % 10 < 5 && !(seasonNumber < 15 && seasonNumber > 4)) {
-                                seasonLine = " сезона";
-                            } else {
-                                seasonLine = " сезонов";
-                            }
-                            item.setSubtitle(seasonNumber + seasonLine);
-                        }
+                        item.setTitle(mTVShow.getTitle());
+                        item.setSubtitle(formYear(mTVShow.getDate()));
 
                         new AsyncDatabaseInsert() {
                             @Override
@@ -512,26 +550,22 @@ public class ContentMediaFragment extends Fragment {
         });
     }
 
-    private void updateUIMovie(){
-        mMovieExtra.setVisibility(View.VISIBLE);
-        if(((Movie)mContentItem).getRevenue().equals("") || ((Movie)mContentItem).getBudget().equals("")){
-            mRevenueView.setVisibility(View.GONE);
-            mBudgetView.setVisibility(View.GONE);
-            mMoneyTextLayout.setVisibility(View.GONE);
-        } else {
-            mRevenueView.setText(((Movie) mContentItem).getRevenue());
-            mBudgetView.setText(((Movie) mContentItem).getBudget());
-        }
-    }
-
     private void updateUITV(){
         mTVShowExtra.setVisibility(View.VISIBLE);
-        mNumberSeasonsView.setText(((TVShow)mContentItem).getNumberOfSeasons());
-        mStatusView.setText(((TVShow)mContentItem).getStatus());
+        mNumberSeasonsView.setText(mTVShow.getNumberOfSeasons());
+        mStatusView.setText(mTVShow.getStatus());
 
         mTVSeasonsLayout.setVisibility(View.VISIBLE);
         initSeasonsList();
 
+    }
+
+    private void initSeasonsList(){
+        LinearLayoutManager layoutManager =
+                new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        mTVSeasonsListAdapter = new TVSeasonsListAdapter(getActivity(), this, mTVShow.getSeasons(), mTVShow.getId());
+        mTVSeasonsList.setLayoutManager(layoutManager);
+        mTVSeasonsList.setAdapter(mTVSeasonsListAdapter);
     }
 
     private void closeFragment(){
@@ -577,6 +611,6 @@ public class ContentMediaFragment extends Fragment {
 
     private void showSnackbar(int resId){
         if(getView() == null) return;
-        Snackbar.make(getView(), resId, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(mFloatingActionButton, resId, Snackbar.LENGTH_LONG).show();
     }
 }

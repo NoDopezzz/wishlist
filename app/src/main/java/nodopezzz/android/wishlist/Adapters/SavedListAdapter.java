@@ -18,9 +18,10 @@ import java.util.Collections;
 import java.util.List;
 
 import nodopezzz.android.wishlist.Activities.ContentBookActivity;
-import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
-import nodopezzz.android.wishlist.Activities.MainActivity;
+import nodopezzz.android.wishlist.Activities.ContentMovieActivity;
+import nodopezzz.android.wishlist.Activities.ContentTVActivity;
 import nodopezzz.android.wishlist.Activities.SearchActivity;
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperAdapter;
@@ -183,15 +184,19 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
 
         @Override
         public void onClick(View v) {
-            if(mItem.getContent().equals(GoogleBooksAPI.CONTENT_BOOKS)) {
+            if(mItem.getContent().equals(Content.BOOK.name())) {
                 mContext.startActivity(ContentBookActivity.newInstance(
                         mContext,
                         mItem.getId(),
                         mItem.getTitle()));
-            } else{
-                ((AppCompatActivity)mContext).startActivityForResult(ContentMediaActivity.newInstance(
+            } else if (mItem.getContent().equals(Content.MOVIE.name())){
+                ((AppCompatActivity)mContext).startActivityForResult(ContentMovieActivity.newInstance(
                         mContext,
-                        mItem.getContent(),
+                        mItem.getId(),
+                        mItem.getTitle()), SearchActivity.REQUEST_CODE);
+            } else if(mItem.getContent().equals(Content.TV.name())){
+                ((AppCompatActivity)mContext).startActivityForResult(ContentTVActivity.newInstance(
+                        mContext,
                         mItem.getId(),
                         mItem.getTitle()), SearchActivity.REQUEST_CODE);
             }

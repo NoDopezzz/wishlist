@@ -18,23 +18,25 @@ import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeDialogFragment;
 import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
+import nodopezzz.android.wishlist.Models.Season;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
-import nodopezzz.android.wishlist.Models.Episode;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
+
+import static nodopezzz.android.wishlist.APIs.TMDBApi.IMAGE_URL_ENDPOINT_ORIGINAL;
 
 public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.EpisodeHolder> {
     private static final String TAG = "EpisodeListAdapter";
 
     private Context mContext;
-    private List<Episode> mEpisodes;
+    private List<Season.Episode> mEpisodes;
     private Fragment mTargetFragment;
 
     private ThumbnailDownloader<EpisodeHolder> mThumbnailDownloader;
     private IconCache mIconCache;
 
-    public EpisodeListAdapter(Context context, Fragment fragment, List<Episode> episodes){
+    public EpisodeListAdapter(Context context, Fragment fragment, List<Season.Episode> episodes){
         mContext = context;
         mEpisodes = episodes;
         mTargetFragment = fragment;
@@ -75,7 +77,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
         private TextView mTitleView;
         private ImageView mArrowImageView;
 
-        private Episode mEpisode;
+        private Season.Episode mEpisode;
 
         EpisodeHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,7 +88,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
 
         }
 
-        void bindView(Episode episode){
+        void bindView(Season.Episode episode){
             mEpisode = episode;
 
             if(
@@ -100,19 +102,19 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
             }
 
             mTitleView.setText(episode.getTitle());
-            Log.i(TAG, episode.getUrlImage());
-            if(mIconCache.getBitmapFromMemory(episode.getUrlImage()) == null){
-                if(episode.getUrlImage().equals("")){
+            String url = IMAGE_URL_ENDPOINT_ORIGINAL + mEpisode.getUrlImage();
+            if(mIconCache.getBitmapFromMemory(url) == null){
+                if(mEpisode.getUrlImage() == null){
                     mEpisodeImage.setImageResource(R.drawable.placeholder_image_not_found);
                 } else {
                     int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 100f);
                     int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 75f);
 
-                    mThumbnailDownloader.queueMessage(episode.getUrlImage(), this,width, height);
+                    mThumbnailDownloader.queueMessage(url, this,width, height);
                     bindImage(null);
                 }
             } else{
-                bindImage(mIconCache.getBitmapFromMemory(episode.getUrlImage()));
+                bindImage(mIconCache.getBitmapFromMemory(url));
             }
         }
 
@@ -124,7 +126,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
         public void onClick(View v) {
             EpisodeDialogFragment fragment = EpisodeDialogFragment.newInstance(
                     mEpisode.getTitle(),
-                    mEpisode.getUrlImage(),
+                    IMAGE_URL_ENDPOINT_ORIGINAL + mEpisode.getUrlImage(),
                     mEpisode.getOverview());
             fragment.setTargetFragment(mTargetFragment, 0);
             fragment.show(mTargetFragment.getFragmentManager(), "EpisodeDialogFragment");

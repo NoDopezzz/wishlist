@@ -3,6 +3,7 @@ package nodopezzz.android.wishlist.Adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,26 +18,33 @@ import java.util.List;
 
 import nodopezzz.android.wishlist.Fragments.EpisodeListDialogFragment;
 import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
+import nodopezzz.android.wishlist.Models.TVShow;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
 import nodopezzz.android.wishlist.Models.Season;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
 
+import static nodopezzz.android.wishlist.APIs.TMDBApi.IMAGE_URL_ENDPOINT_ORIGINAL;
+import static nodopezzz.android.wishlist.DataParser.formYear;
+
 public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdapter.SeasonHolder> {
-    private static final String TAG = "CastListAdapter";
+    private static final String TAG = "TVSeasonsListAdapter";
 
     private Context mContext;
-    private List<Season> mSeasons;
+    private List<TVShow.Season> mSeasons;
     private Fragment mFragment;
 
     private IconCache mIconCache;
     private ThumbnailDownloader<SeasonHolder> mThumbnailDownloader;
 
-    public TVSeasonsListAdapter(Context context, Fragment fragment, List<Season> seasons){
+    private String mTVShowId;
+
+    public TVSeasonsListAdapter(Context context, Fragment fragment, List<TVShow.Season> seasons, String tvShowId){
         mContext = context;
         mSeasons = seasons;
         mFragment = fragment;
+        mTVShowId = tvShowId;
 
         mIconCache = GeneralSingleton.getInstance().getIconCache();
         mThumbnailDownloader = new ThumbnailDownloader<>("ThumbnailDownloader", new Handler());
@@ -74,7 +82,7 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
         private TextView mTitleView;
         private TextView mDateView;
 
-        private Season mSeason;
+        private TVShow.Season mSeason;
 
         public SeasonHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,21 +94,26 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
             itemView.setOnClickListener(this);
         }
 
-        public void bindView(Season season){
+        public void bindView(TVShow.Season season){
             mSeason = season;
 
             mTitleView.setText(season.getTitle());
-            mDateView.setText(season.getDate());
+            mDateView.setText(formYear((season.getDate())));
 
-            if(mIconCache.getBitmapFromMemory(season.getUrlImage()) == null){
+            if(mSeason.getUrlImage() == null || mSeason.getUrlImage().equals("null")){
+                mImageSeasonView.setImageResource(R.drawable.placeholder_image_not_found);
+            } else {
+                String url = IMAGE_URL_ENDPOINT_ORIGINAL + mSeason.getUrlImage();
+                if (mIconCache.getBitmapFromMemory(url) == null) {
 
-                int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 150f);
-                int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 225f);
+                    int width = (int) DimensionsCalculator.calculateDipToPx(mContext, 150f);
+                    int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 225f);
 
-                mThumbnailDownloader.queueMessage(season.getUrlImage(), this,width, height);
-                bindImage(null);
-            } else{
-                bindImage(mIconCache.getBitmapFromMemory(season.getUrlImage()));
+                    mThumbnailDownloader.queueMessage(url, this, width, height);
+                    bindImage(null);
+                } else {
+                    bindImage(mIconCache.getBitmapFromMemory(url));
+                }
             }
         }
 
@@ -112,7 +125,7 @@ public class TVSeasonsListAdapter extends RecyclerView.Adapter<TVSeasonsListAdap
         public void onClick(View v) {
             EpisodeListDialogFragment dialogFragment = EpisodeListDialogFragment.newInstance(
                     mSeason.getTitle(),
-                    mSeason.getTVShowId(),
+                    mTVShowId,
                     mSeason.getSeasonNumber());
             dialogFragment.setTargetFragment(mFragment, 0);
             dialogFragment.show(mFragment.getFragmentManager(), "EpisodeListDialogFragment");

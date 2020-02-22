@@ -1,7 +1,6 @@
 package nodopezzz.android.wishlist.Fragments;
 
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,29 +12,46 @@ import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import nodopezzz.android.wishlist.APIs.TMDBApi;
+import nodopezzz.android.wishlist.Activities.ContentMovieActivity;
+import nodopezzz.android.wishlist.Activities.ContentTVActivity;
+import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.SearchListAdapter;
-import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
+import nodopezzz.android.wishlist.Content;
+import nodopezzz.android.wishlist.Models.Movie;
+import nodopezzz.android.wishlist.Models.SearchItem;
+import nodopezzz.android.wishlist.Models.SearchMovieResult;
+import nodopezzz.android.wishlist.Models.SearchTVResult;
 import nodopezzz.android.wishlist.OnScrolled;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.Models.SearchItem;
-import nodopezzz.android.wishlist.APIs.TMDBAPI;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static nodopezzz.android.wishlist.APIs.TMDBApi.IMAGE_URL_ENDPOINT_THUMBNAIL;
+import static nodopezzz.android.wishlist.DataParser.formDate;
 
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
 
-    public static SearchFragment newInstance(String content){
+    public static SearchFragment newInstance(Content content){
         SearchFragment fragment = new SearchFragment();
+
         Bundle args = new Bundle();
-        args.putString(ARG_CONTENT, content);
+        args.putSerializable(ARG_CONTENT, content);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,17 +69,18 @@ public class SearchFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private SearchListAdapter mSearchAdapter;
 
-    private String mContent;
+    private Content mContent;
 
     private int mPage = 1;
     private String mQuery;
     private List<SearchItem> mSearchItems = new ArrayList<>();
     private int mPreviousSize = 0;
-    private GetSearchResult mAsyncTaskGetSearchResult;
 
     private RelativeLayout mProgressBarLayout;
     private RelativeLayout mEmptyQueryLayout;
     private RelativeLayout mNothingFoundLayout;
+
+    private Call mCall;
 
     @Nullable
     @Override
@@ -75,10 +92,8 @@ public class SearchFragment extends Fragment {
         mEmptyQueryLayout = v.findViewById(R.id.search_empty_layout);
         mNothingFoundLayout = v.findViewById(R.id.nothing_found_search_layout);
 
-        mAsyncTaskGetSearchResult = new GetSearchResult();
-
-        if(getArguments() != null && getArguments().getString(ARG_CONTENT) != null){
-            mContent = getArguments().getString(ARG_CONTENT);
+        if(getArguments() != null && getArguments().getSerializable(ARG_CONTENT) != null){
+            mContent = (Content)getArguments().getSerializable(ARG_CONTENT);
         }
 
         initUI();
@@ -94,30 +109,19 @@ public class SearchFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 hideKeyboard();
-
-                mQuery = query;
-                mAsyncTaskGetSearchResult.cancel(true);
-                if(!mQuery.equals("")) {
-                    mPage = 1;
-                    mSearchItems.clear();
-                    mAsyncTaskGetSearchResult = new GetSearchResult();
-                    mAsyncTaskGetSearchResult.execute(mQuery);
-                } else{
-                    mCurrentState = State.EMPTY;
-                    updateUI();
-                }
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 mQuery = newText;
-                mAsyncTaskGetSearchResult.cancel(true);
                 if(!newText.equals("")) {
                     mPage = 1;
                     mSearchItems.clear();
-                    mAsyncTaskGetSearchResult = new GetSearchResult();
-                    mAsyncTaskGetSearchResult.execute(mQuery);
+                    mCurrentState = State.SEARCHING;
+                    updateUI();
+
+                    makeRequest();
                 } else{
                     mCurrentState = State.EMPTY;
                     updateUI();
@@ -131,10 +135,81 @@ public class SearchFragment extends Fragment {
         mRecyclerView.addOnScrollListener(new OnScrolled(mRecyclerView, linearLayoutManager) {
             @Override
             public void execute() {
-                Log.i(TAG, "Scroll");
-                new GetSearchResult().execute(mQuery);
+                if(mPage == 1) {
+                    mCurrentState = State.SEARCHING;
+                }
+                updateUI();
+                makeRequest();
             }
         });
+    }
+
+    private void makeRequest(){
+        if(mCall != null && mCall.isExecuted()){
+            mCall.cancel();
+        }
+
+        if(mContent == Content.MOVIE) {
+            mCall = TMDBApi
+                    .getInstance()
+                    .getAdapter()
+                    .searchItemMovie(mQuery, mPage);
+
+            mCall.enqueue(new Callback<SearchMovieResult>() {
+                @Override
+                public void onResponse(Call<SearchMovieResult> call, Response<SearchMovieResult> response) {
+                    SearchMovieResult result = response.body();
+                    List<SearchMovieResult.SearchItemMovie> movies = result.getSearchItemMovies();
+                    mPage++;
+                    mPreviousSize = mSearchItems.size();
+                    mSearchItems.remove(null);
+                    if (movies != null && !movies.isEmpty()) {
+                        mSearchItems.addAll(generateSearchItems(movies));
+                    }
+
+                    mCurrentState = State.COMPLETE;
+                    if (mSearchItems.isEmpty()) {
+                        mCurrentState = State.NOTHING;
+                    }
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(Call<SearchMovieResult> call, Throwable t) {
+
+                }
+            });
+        } else if(mContent == Content.TV){
+            mCall = TMDBApi
+                    .getInstance()
+                    .getAdapter()
+                    .searchItemTV(mQuery, mPage);
+
+            mCall.enqueue(new Callback<SearchTVResult>() {
+                @Override
+                public void onResponse(Call<SearchTVResult> call, Response<SearchTVResult> response) {
+                    SearchTVResult result = response.body();
+                    List<SearchTVResult.SearchItemTV> movies = result.getSearchItemTVs();
+                    mPage++;
+                    mPreviousSize = mSearchItems.size();
+                    mSearchItems.remove(null);
+                    if (movies != null && !movies.isEmpty()) {
+                        mSearchItems.addAll(generateSearchItems(movies));
+                    }
+
+                    mCurrentState = State.COMPLETE;
+                    if (mSearchItems.isEmpty()) {
+                        mCurrentState = State.NOTHING;
+                    }
+                    updateUI();
+                }
+
+                @Override
+                public void onFailure(Call<SearchTVResult> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
     private void hideKeyboard(){
@@ -144,7 +219,22 @@ public class SearchFragment extends Fragment {
 
     private void updateUI(){
         if(mCurrentState == State.SEARCHING) {
-            mSearchAdapter = new SearchListAdapter(getActivity(), mSearchItems);
+            mSearchAdapter = new SearchListAdapter(getActivity(), mSearchItems, new SearchListAdapter.OnClickItemListener() {
+                @Override
+                public void onClickItem(int position) {
+                    switch(mContent){
+                        case MOVIE:
+                            getActivity().startActivityForResult(ContentMovieActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
+                            break;
+                        case TV:
+                            getActivity().startActivityForResult(ContentTVActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
+                            break;
+                        case BOOK:
+                            getActivity().startActivityForResult(ContentMovieActivity.newInstance(getActivity(), mSearchItems.get(position).getId(), mSearchItems.get(position).getTitle()), SearchActivity.REQUEST_CODE);
+                            break;
+                    }
+                }
+            });
             mRecyclerView.setAdapter(mSearchAdapter);
         } else if(mCurrentState == State.COMPLETE){
             if(mPreviousSize < mSearchItems.size()) {
@@ -175,48 +265,45 @@ public class SearchFragment extends Fragment {
         }
     }
 
-    private class GetSearchResult extends AsyncTask<String, Void, List<SearchItem>>{
-
-        @Override
-        protected void onPreExecute() {
-            if(mPage == 1) {
-                mCurrentState = State.SEARCHING;
-            }
-            updateUI();
+    private <T> List<SearchItem> generateSearchItems(List<T> tList){
+        List<SearchItem> items = new ArrayList<>();
+        switch(mContent){
+            case MOVIE:
+                for (T t : tList){
+                    SearchMovieResult.SearchItemMovie movie = (SearchMovieResult.SearchItemMovie)t;
+                    SearchItem item = new SearchItem(
+                            movie.getTitle(),
+                            formDate(movie.getDate()),
+                            movie.getOverview(),
+                            IMAGE_URL_ENDPOINT_THUMBNAIL + movie.getThumbnailUrl(), movie.getId());
+                    items.add(item);
+                }
+                break;
+            case TV:
+                for (T t : tList){
+                    SearchTVResult.SearchItemTV tv = (SearchTVResult.SearchItemTV) t;
+                    SearchItem item = new SearchItem(
+                            tv.getTitle(),
+                            formDate(tv.getDate()),
+                            tv.getOverview(),
+                            IMAGE_URL_ENDPOINT_THUMBNAIL + tv.getThumbnailUrl(),
+                            tv.getId());
+                    items.add(item);
+                }
+                break;
+            case BOOK:
+                for (T t : tList){
+                    Movie movie = (Movie)t;
+                    SearchItem item = new SearchItem(
+                            movie.getTitle(),
+                            movie.getDate(),
+                            movie.getOverview(),
+                            movie.getUrlPoster(), movie.getId());
+                    items.add(item);
+                }
+                break;
         }
-
-        @Override
-        protected List<SearchItem> doInBackground(String... strings) {
-            List<SearchItem> result = search(strings[0]);
-            if(isCancelled()) {
-                return null;
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(List<SearchItem> searchItems) {
-            mPage++;
-            mPreviousSize = mSearchItems.size();
-            mSearchItems.remove(null);
-            if(searchItems != null && !searchItems.isEmpty()) {
-                mSearchItems.addAll(searchItems);
-            }
-
-            mCurrentState = State.COMPLETE;
-            if(mSearchItems.isEmpty()){
-                mCurrentState = State.NOTHING;
-            }
-            updateUI();
-        }
-    }
-
-    private List<SearchItem> search(String query){
-        if(mContent.equals(GoogleBooksAPI.CONTENT_BOOKS)){
-            return GoogleBooksAPI.search(query, mPage);
-        } else{
-            return TMDBAPI.search(mContent, query, mPage);
-        }
+        return items;
     }
 
     @Override

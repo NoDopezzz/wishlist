@@ -5,33 +5,31 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
-import nodopezzz.android.wishlist.Activities.ContentBookActivity;
-import nodopezzz.android.wishlist.Activities.ContentMediaActivity;
-import nodopezzz.android.wishlist.Activities.MainActivity;
-import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
+import nodopezzz.android.wishlist.Models.SearchItem;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
-import nodopezzz.android.wishlist.Models.SearchItem;
 import nodopezzz.android.wishlist.Network.ThumbnailDownloader;
 import nodopezzz.android.wishlist.R;
 
 public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.SearchHolder>{
+
+    public interface OnClickItemListener{
+        void onClickItem(int position);
+    }
+
+    private OnClickItemListener mOnClickItemListener;
 
     private static final int VIEW_TYPE_DATA = 1;
     private static final int VIEW_TYPE_PROGRESS = 2;
@@ -42,9 +40,10 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
     private ThumbnailDownloader<SearchListAdapter.SearchItemHolder> mThumbnailDownloader;
     private IconCache mIconCache;
 
-    public SearchListAdapter(Context context, List<SearchItem> searchItems){
+    public SearchListAdapter(Context context, List<SearchItem> searchItems, OnClickItemListener onClickItemListener){
         mContext = context;
         mSearchItems = searchItems;
+        mOnClickItemListener = onClickItemListener;
 
         mIconCache = GeneralSingleton.getInstance().getIconCache();
         mThumbnailDownloader = new ThumbnailDownloader<>("ThumbnailDownloader", new Handler());
@@ -114,6 +113,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
         private TextView mTextOverview;
 
         private SearchItem mItem;
+        private int mPosition;
 
         public SearchItemHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,6 +133,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
             mTextTitle.setText(mItem.getTitle());
             mTextSubtitle.setText(mItem.getSubtitle());
             mTextOverview.setText(mItem.getOverview());
+            mPosition = position;
 
             final String url = mSearchItems.get(position).getThumbnailUrl();
             if(mIconCache.getBitmapFromMemory(url) == null) {
@@ -155,13 +156,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
 
         @Override
         public void onClick(View v) {
-            if(mContext != null) {
-                if(mItem.getContent().equals(GoogleBooksAPI.CONTENT_BOOKS)){
-                    mContext.startActivity(ContentBookActivity.newInstance(mContext, mItem.getId(), mItem.getTitle()));
-                } else {
-                    ((AppCompatActivity) mContext).startActivityForResult(ContentMediaActivity.newInstance(mContext, mItem.getContent(), mItem.getId(), mItem.getTitle()), SearchActivity.REQUEST_CODE);
-                }
-            }
+            mOnClickItemListener.onClickItem(mPosition);
         }
     }
 

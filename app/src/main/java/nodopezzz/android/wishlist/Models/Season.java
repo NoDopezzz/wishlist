@@ -1,22 +1,19 @@
 package nodopezzz.android.wishlist.Models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Season {
-    private String mId;
-    private String mTitle;
+
+    @SerializedName("air_date")
+    @Expose
     private String mDate;
-    private String mUrlImage;
-    private String mSeasonNumber;
-    private String mTVShowId;
 
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String title) {
-        mTitle = title;
-    }
+    @SerializedName("episodes")
+    @Expose
+    private List<Episode> mEpisodes;
 
     public String getDate() {
         return mDate;
@@ -26,35 +23,51 @@ public class Season {
         mDate = date;
     }
 
-    public String getUrlImage() {
-        return mUrlImage;
+    public List<Episode> getEpisodes() {
+        return mEpisodes;
     }
 
-    public void setUrlImage(String urlImage) {
-        mUrlImage = urlImage;
+    public void setEpisodes(List<Episode> episodes) {
+        mEpisodes = episodes;
     }
 
-    public String getId() {
-        return mId;
+    public class Episode {
+
+        @SerializedName("name")
+        @Expose
+        private String mTitle;
+
+        @SerializedName("still_path")
+        @Expose
+        private String mUrlImage;
+
+        @SerializedName("overview")
+        @Expose
+        private String mOverview;
+
+        public String getTitle() {
+            return mTitle;
+        }
+
+        public void setTitle(String title) {
+            mTitle = title;
+        }
+
+        public String getUrlImage() {
+            return mUrlImage;
+        }
+
+        public void setUrlImage(String urlImage) {
+            mUrlImage = urlImage;
+        }
+
+        public String getOverview() {
+            return mOverview;
+        }
+
+        public void setOverview(String overview) {
+            mOverview = overview;
+        }
     }
 
-    public void setId(String id) {
-        mId = id;
-    }
-
-    public String getSeasonNumber() {
-        return mSeasonNumber;
-    }
-
-    public void setSeasonNumber(String seasonNumber) {
-        mSeasonNumber = seasonNumber;
-    }
-
-    public String getTVShowId() {
-        return mTVShowId;
-    }
-
-    public void setTVShowId(String TVShowId) {
-        mTVShowId = TVShowId;
-    }
 }

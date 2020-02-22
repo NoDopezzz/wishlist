@@ -23,6 +23,7 @@ public class IconCache extends LruCache<String, Bitmap> {
     }
 
     public Bitmap getBitmapFromMemory(String key){
+        if(key == null) return null;
         return this.get(key);
     }
 

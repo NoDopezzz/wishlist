@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -205,64 +206,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/content_tvshow_extra"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="30dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        android:lineSpacingExtra="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/seasons_number"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        android:lineSpacingExtra="10dp"/>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/content_tvshow_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-
-                        android:textSize="16sp"
-                        android:lineSpacingExtra="10dp"/>
-
-                    <TextView
-                        android:id="@+id/content_tvshow_numberseasons"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-
-                        android:textSize="16sp"
-                        android:lineSpacingExtra="10dp"/>
-
-                </LinearLayout>
-            </LinearLayout>
-
             <bg.devlabs.fullscreenvideoview.FullscreenVideoView
                 android:id="@+id/content_video_player"
                 android:layout_width="match_parent"
@@ -302,30 +245,6 @@
                     android:layout_gravity="right|bottom"
                     android:background="@android:color/transparent"/>
             </com.ms.square.android.expandabletextview.ExpandableTextView>
-
-            <LinearLayout
-                android:id="@+id/content_seasons_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginStart="30dp"
-                    android:text="@string/content_seasons"
-
-                    android:textColor="@android:color/black"
-                    android:textSize="22sp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/content_seasons_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:background="@android:color/transparent"/>
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/content_pictures_layout"
@@ -403,23 +322,15 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="200dp">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/content_media_floating_button"
+        android:layout_height="56dp"
+        android:layout_width="56dp"
+        app:fabCustomSize="56dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_bookmark_border_white_24dp"
+        android:layout_gravity="end|bottom"
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/content_media_floating_button"
-            android:layout_height="56dp"
-            android:layout_width="56dp"
-            app:fabCustomSize="56dp"
-            android:layout_margin="24dp"
-            android:src="@drawable/ic_bookmark_border_white_24dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-
-            android:visibility="gone"/>
-
-    </RelativeLayout>
+        android:visibility="gone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

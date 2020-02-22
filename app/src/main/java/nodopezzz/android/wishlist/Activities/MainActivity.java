@@ -12,10 +12,11 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import nodopezzz.android.wishlist.APIs.TMDBApi;
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Fragments.ListFragment;
 import nodopezzz.android.wishlist.APIs.GoogleBooksAPI;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.APIs.TMDBAPI;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,16 +35,16 @@ public class MainActivity extends AppCompatActivity {
         mNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                String content;
+                Content content;
                 switch(menuItem.getItemId()){
                     case R.id.navigation_item_movie:
-                        content = TMDBAPI.CONTENT_MOVIE;
+                        content = Content.MOVIE;
                         break;
                     case R.id.navigation_item_tv:
-                        content = TMDBAPI.CONTENT_TV;
+                        content = Content.TV;
                         break;
                     case R.id.navigation_item_book:
-                        content = GoogleBooksAPI.CONTENT_BOOKS;
+                        content = Content.BOOK;
                         break;
                     default:
                         return false;
@@ -54,10 +55,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        createFragment(TMDBAPI.CONTENT_MOVIE);
+        createFragment(Content.MOVIE);
     }
 
-    private void createFragment(String content){
+    private void createFragment(Content content){
         ListFragment fragment = ListFragment.newInstance(content);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.navigation_activity_frame, fragment)
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE){
             if(resultCode == RESULT_ERROR_OPEN){
-                Log.i("ContentMediaFragment", "result");
+                Log.i("ContentMovieFragment", "result");
                 Snackbar.make(findViewById(R.id.navigation_activity_frame), R.string.error_open, Snackbar.LENGTH_LONG).show();
             }
         }

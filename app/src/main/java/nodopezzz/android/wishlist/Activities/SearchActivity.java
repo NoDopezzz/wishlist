@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Fragments.SearchFragment;
 import nodopezzz.android.wishlist.R;
 
@@ -31,7 +32,7 @@ public class SearchActivity extends AppCompatActivity {
     private int revealY;
     private View rootLayout;
 
-    public static Intent newInstance(Context context, String content, int x, int y){
+    public static Intent newInstance(Context context, Content content, int x, int y){
         Intent intent = new Intent(context, SearchActivity.class);
         intent.putExtra(ARG_CONTENT, content);
         intent.putExtra(EXTRA_X, x);
@@ -45,7 +46,7 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single);
 
         rootLayout = findViewById(R.id.fragment_frame);
-        String content = getIntent().getStringExtra(ARG_CONTENT);
+        Content content = (Content)getIntent().getSerializableExtra(ARG_CONTENT);
         Intent intent = getIntent();
         if(savedInstanceState == null && intent.hasExtra(EXTRA_X) && intent.hasExtra(EXTRA_Y)){
             rootLayout.setVisibility(View.INVISIBLE);
@@ -67,7 +68,7 @@ public class SearchActivity extends AppCompatActivity {
             rootLayout.setVisibility(View.VISIBLE);
         }
 
-
+        Log.i("Retrofit", content.name());
         SearchFragment fragment = SearchFragment.newInstance(content);
         getSupportFragmentManager()
                 .beginTransaction()

@@ -2,15 +2,8 @@ package nodopezzz.android.wishlist.Fragments;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,12 +26,13 @@ import java.util.List;
 
 import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Adapters.SavedListAdapter;
+import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseGetByContent;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperDelete;
 import nodopezzz.android.wishlist.MemoryUtils.DimensionsCalculator;
 import nodopezzz.android.wishlist.R;
-import nodopezzz.android.wishlist.APIs.TMDBAPI;
+import nodopezzz.android.wishlist.APIs.TMDBApi;
 import nodopezzz.android.wishlist.Vibration;
 
 public class ListFragment extends Fragment {
@@ -46,7 +40,7 @@ public class ListFragment extends Fragment {
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
 
-    private String mContent;
+    private Content mContent;
 
     private FloatingActionButton mAddButton;
 
@@ -61,10 +55,10 @@ public class ListFragment extends Fragment {
     private AnimatorSet mAnimatorSetTrash;
     private AnimatorSet mAnimatorSetCircle;
 
-    public static ListFragment newInstance(String content){
+    public static ListFragment newInstance(Content content){
         ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CONTENT, content);
+        args.putSerializable(ARG_CONTENT, content);
         fragment.setArguments(args);
         return fragment;
     }
@@ -97,9 +91,9 @@ public class ListFragment extends Fragment {
         });
 
         Bundle args = getArguments();
-        mContent = TMDBAPI.CONTENT_MOVIE;
-        if(args != null && args.getString(ARG_CONTENT) != null){
-            mContent = args.getString(ARG_CONTENT);
+        mContent = Content.MOVIE;
+        if(args != null && args.getSerializable(ARG_CONTENT) != null){
+            mContent = (Content)args.getSerializable(ARG_CONTENT);
         }
 
         mAddButton.setOnClickListener(new View.OnClickListener() {

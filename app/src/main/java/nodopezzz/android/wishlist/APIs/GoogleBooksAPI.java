@@ -133,7 +133,6 @@ public class GoogleBooksAPI {
     }
 
     private static SearchItem parseBookSearch(JSONObject object) throws JSONException{
-        SearchItem book = new SearchItem();
 
         String id = object.getString("id");
         String title = object.getJSONObject("volumeInfo").getString("title");
@@ -151,13 +150,7 @@ public class GoogleBooksAPI {
 
         String urlThumbnail = object.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("smallThumbnail");
 
-        book.setId(id);
-        book.setSubtitle(authorString);
-        book.setOverview(description);
-        book.setTitle(title);
-        book.setThumbnailUrl(urlThumbnail);
-
-        book.setContent(CONTENT_BOOKS);
+        SearchItem book = new SearchItem(title,authorString,description,urlThumbnail, id);
 
         return book;
     }
