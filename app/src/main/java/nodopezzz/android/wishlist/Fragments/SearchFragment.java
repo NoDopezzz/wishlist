@@ -120,6 +120,9 @@ public class SearchFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 mQuery = newText;
+                if(mCall != null && mCall.isExecuted()){
+                    mCall.cancel();
+                }
                 if(!newText.equals("")) {
                     mPage = 1;
                     mSearchItems.clear();
@@ -150,10 +153,6 @@ public class SearchFragment extends Fragment {
     }
 
     private void makeRequest(){
-        if(mCall != null && mCall.isExecuted()){
-            mCall.cancel();
-        }
-
         if(mContent == Content.MOVIE) {
             mCall = TMDBApi
                     .getInstance()
