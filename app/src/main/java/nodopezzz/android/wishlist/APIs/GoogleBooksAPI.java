@@ -95,9 +95,9 @@ public class GoogleBooksAPI {
         JSONArray array = object.getJSONArray("items");
         for (int i = 0; i < array.length(); i++){
             try {
-                SearchItem book = parseBookSearch(array.getJSONObject(i));
-                if (book != null) {
-                    books.add(book);
+                SearchItem book_placeholder = parseBookSearch(array.getJSONObject(i));
+                if (book_placeholder != null) {
+                    books.add(book_placeholder);
                 }
             } catch(JSONException e){
                 Log.i(TAG, e.toString());
@@ -108,7 +108,7 @@ public class GoogleBooksAPI {
     }
 
     private static Book parseBook(JSONObject object) throws JSONException{
-        Book book = new Book();
+        Book book_placeholder = new Book();
 
         String id = object.getString("id");
         String title = object.getJSONObject("volumeInfo").getString("title");
@@ -155,18 +155,18 @@ public class GoogleBooksAPI {
 
         String publisher = object.getJSONObject("volumeInfo").getString("publisher");
 
-        book.setId(id);
-        book.setAuthors(authors);
-        book.setCategories(categoriesString);
-        book.setDate(date);
-        book.setOverview(description);
-        book.setTitle(title);
-        book.setUrlImage(urlImage);
-        book.setThumbnailUrl(urlThumbnail);
-        book.setUrlBook(urlBook);
-        book.setPublisher(publisher);
+        book_placeholder.setId(id);
+        book_placeholder.setAuthors(authors);
+        book_placeholder.setCategories(categoriesString);
+        book_placeholder.setDate(date);
+        book_placeholder.setOverview(description);
+        book_placeholder.setTitle(title);
+        book_placeholder.setUrlImage(urlImage);
+        book_placeholder.setThumbnailUrl(urlThumbnail);
+        book_placeholder.setUrlBook(urlBook);
+        book_placeholder.setPublisher(publisher);
 
-        return book;
+        return book_placeholder;
     }
 
     private static SearchItem parseBookSearch(JSONObject object) throws JSONException{
@@ -187,9 +187,9 @@ public class GoogleBooksAPI {
 
         String urlThumbnail = object.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("smallThumbnail");
 
-        SearchItem book = new SearchItem(title,authorString,description,urlThumbnail, id);
+        SearchItem book_placeholder = new SearchItem(title,authorString,description,urlThumbnail, id);
 
-        return book;
+        return book_placeholder;
     }
     }*/
 }

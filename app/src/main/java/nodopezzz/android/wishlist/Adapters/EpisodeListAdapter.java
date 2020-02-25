@@ -3,7 +3,6 @@ package nodopezzz.android.wishlist.Adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -111,7 +110,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
                     int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 75f);
 
                     mThumbnailDownloader.queueMessage(url, this,width, height);
-                    bindImage(null);
+                    mEpisodeImage.setImageDrawable(null);
                 }
             } else{
                 bindImage(mIconCache.getBitmapFromMemory(url));
@@ -119,6 +118,7 @@ public class EpisodeListAdapter extends RecyclerView.Adapter<EpisodeListAdapter.
         }
 
         void bindImage(Bitmap bitmap){
+            mEpisodeImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mEpisodeImage.setImageBitmap(bitmap);
         }
 

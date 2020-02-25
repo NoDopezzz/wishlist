@@ -151,6 +151,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Se
         }
 
         public void bindImage(Drawable image){
+            mImagePoster.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mImagePoster.setImageDrawable(image);
         }
 

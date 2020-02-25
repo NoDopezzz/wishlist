@@ -84,12 +84,14 @@ public class PicturesSliderAdapter extends SliderViewAdapter<PicturesSliderAdapt
                 int height = (int) DimensionsCalculator.calculateDipToPx(mContext, 200f);
 
                 mThumbnailDownloader.queueMessage(url, this, width, height);
+                mImageView.setImageDrawable(null);
             } else{
                 bindImage(mIconCache.getBitmapFromMemory(url));
             }
         }
 
         public void bindImage(Bitmap drawable){
+            mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mImageView.setImageBitmap(drawable);
         }
     }

@@ -11,6 +11,8 @@ public class AsyncDatabaseInsert extends AsyncTask<DBItem, Void, Void> {
         try {
             Database db = GeneralSingleton.getInstance().getDatabase();
             DBItemDao dao = db.dbItemDao();
+            int position = dao.getAllByContent(dbItems[0].getContent()).size();
+            dbItems[0].setPosition(position);
             dao.insert(dbItems[0]);
         } catch(RuntimeException e){
             e.printStackTrace();

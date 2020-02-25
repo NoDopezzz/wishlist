@@ -98,6 +98,7 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
 
                     mThumbnailDownloader.queueMessage(url, this, width, height);
                 } else{
+                    mImageActorView.setScaleType(ImageView.ScaleType.CENTER);
                     mImageActorView.setImageResource(R.drawable.placeholder_person);
                 }
             } else{
@@ -106,6 +107,7 @@ public class CastListAdapter extends RecyclerView.Adapter<CastListAdapter.CastHo
         }
 
         public void bindImage(Bitmap image){
+            mImageActorView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mImageActorView.setImageBitmap(image);
         }
     }

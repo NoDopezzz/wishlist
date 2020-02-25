@@ -1,11 +1,14 @@
 package nodopezzz.android.wishlist.Database;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(primaryKeys = {"content", "id"})
 public class DBItem {
+
+    private int position;
 
     private String title;
     private String subtitle;
@@ -46,5 +49,13 @@ public class DBItem {
 
     public void setSubtitle(String subtitle) {
         this.subtitle = subtitle;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 }

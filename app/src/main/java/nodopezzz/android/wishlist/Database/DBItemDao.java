@@ -10,7 +10,7 @@ import java.util.List;
 
 @Dao
 public interface DBItemDao {
-    @Query("SELECT * FROM DBItem WHERE content = :content")
+    @Query("SELECT * FROM DBItem WHERE content = :content ORDER BY position DESC")
     List<DBItem> getAllByContent(String content);
 
     @Query("SELECT * FROM DBItem WHERE id = :id AND content = :content")

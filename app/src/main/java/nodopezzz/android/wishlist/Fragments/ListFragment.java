@@ -51,6 +51,7 @@ public class ListFragment extends Fragment {
     private ProgressBar mProgressBar;
     private ImageView mDeleteView;
     private View mDeleteCircle;
+    private ImageView mImagePlaceholder;
 
     private AnimatorSet mAnimatorSetTrash;
     private AnimatorSet mAnimatorSetCircle;
@@ -73,6 +74,7 @@ public class ListFragment extends Fragment {
         mProgressBar = v.findViewById(R.id.list_progressbar);
         mDeleteView = v.findViewById(R.id.list_delete_image);
         mDeleteCircle = v.findViewById(R.id.list_delete_circle);
+        mImagePlaceholder = v.findViewById(R.id.list_image_placeholder);
 
         mList.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -124,6 +126,7 @@ public class ListFragment extends Fragment {
     }
 
     private void initList(){
+        mImagePlaceholder.setVisibility(View.GONE);
         if(mItems == null) {
             mList.setVisibility(View.GONE);
             mProgressBar.setVisibility(View.VISIBLE);
@@ -133,6 +136,18 @@ public class ListFragment extends Fragment {
             @Override
             public void onPostGet(List<DBItem> argItems) {
                 mItems = argItems;
+
+                if(argItems.isEmpty()){
+                    if(mContent == Content.MOVIE){
+                        mImagePlaceholder.setImageResource(R.drawable.movie_placeholder);
+                    } else if(mContent == Content.TV){
+                        mImagePlaceholder.setImageResource(R.drawable.tv_placeholder);
+                    } else if(mContent == Content.BOOK){
+                        mImagePlaceholder.setImageResource(R.drawable.book_placeholder);
+                    }
+                    mImagePlaceholder.setVisibility(View.VISIBLE);
+                }
+
                 if(mAdapter == null) {
                     mAdapter = new SavedListAdapter(getActivity(), mItems, mDeleteView);
 

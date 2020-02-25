@@ -23,6 +23,7 @@ import nodopezzz.android.wishlist.Activities.ContentTVActivity;
 import nodopezzz.android.wishlist.Activities.SearchActivity;
 import nodopezzz.android.wishlist.Content;
 import nodopezzz.android.wishlist.Database.AsyncDatabaseDelete;
+import nodopezzz.android.wishlist.Database.AsyncDatabaseUpdate;
 import nodopezzz.android.wishlist.Database.DBItem;
 import nodopezzz.android.wishlist.ItemTouchDelete.ItemTouchHelperAdapter;
 import nodopezzz.android.wishlist.Utils.GeneralSingleton;
@@ -93,15 +94,39 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
+                DBItem firstItem = mItems.get(i);
+                DBItem secondItem = mItems.get(i + 1);
+
+                int firstPosition = firstItem.getPosition();
+                int secondPosition = secondItem.getPosition();
+
+                firstItem.setPosition(secondPosition);
+                secondItem.setPosition(firstPosition);
+
+                new AsyncDatabaseUpdate().execute(firstItem);
+                new AsyncDatabaseUpdate().execute(secondItem);
+
                 Collections.swap(mItems, i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
+                DBItem firstItem = mItems.get(i);
+                DBItem secondItem = mItems.get(i - 1);
+
+                int firstPosition = firstItem.getPosition();
+                int secondPosition = secondItem.getPosition();
+
+                firstItem.setPosition(secondPosition);
+                secondItem.setPosition(firstPosition);
+
+                new AsyncDatabaseUpdate().execute(firstItem);
+                new AsyncDatabaseUpdate().execute(secondItem);
+
                 Collections.swap(mItems, i, i - 1);
             }
         }
         notifyItemMoved(fromPosition, toPosition);
-        return true;
+        return false;
     }
 
     @Override
@@ -172,6 +197,7 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
             mImageView.setImageBitmap(null);
             if(GeneralSingleton.getInstance().getIconCache().getBitmapFromMemory(mItem.getId() + "_" + mItem.getContent()) == null){
                 mDownloader.putInQueue(this, mItem.getId(), mItem.getContent());
+                mImageView.setImageDrawable(null);
             } else{
                 bindImage(GeneralSingleton.getInstance().getIconCache().getBitmapFromMemory(mItem.getId() + "_" + mItem.getContent()));
             }
@@ -179,6 +205,7 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
         }
 
         public void bindImage(Bitmap bitmap){
+            mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mImageView.setImageBitmap(bitmap);
         }
 
