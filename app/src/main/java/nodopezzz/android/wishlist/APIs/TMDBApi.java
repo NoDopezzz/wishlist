@@ -60,8 +60,6 @@ public class TMDBApi {
                             .build();
                 }
 
-                Log.i("Retrofit", url.toString());
-
                 Request.Builder requestBuilder = original.newBuilder().url(url);
                 Request request = requestBuilder.build();
                 return chain.proceed(request);

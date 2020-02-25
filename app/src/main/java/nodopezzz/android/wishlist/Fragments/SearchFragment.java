@@ -214,7 +214,7 @@ public class SearchFragment extends Fragment {
                 }
             });
         } else if(mContent == Content.BOOK){
-            mCall = GoogleBooksAPI.getInstance().getAdapter().search(mQuery, Integer.toString(mPage - 1));
+            mCall = GoogleBooksAPI.getInstance().getAdapter().search(mQuery, Integer.toString((mPage - 1) * 10));
             mCall.enqueue(new Callback<SearchBookResult>(){
 
                 @Override
