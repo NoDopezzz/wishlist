@@ -47,10 +47,11 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
     }
 
     public interface onStateChangedListener{
-        public void onSelected();
-        public void onClear();
-        public void onOverlapped();
-        public void onOverlappedClear();
+        void onSelected();
+        void onClear();
+        void onOverlapped();
+        void onOverlappedClear();
+        void onDeleted();
     }
 
     public SavedListAdapter(Context context, List<DBItem> items, View deleteView){
@@ -138,6 +139,9 @@ public class SavedListAdapter extends RecyclerView.Adapter<SavedListAdapter.Save
                 holder.itemView.setVisibility(View.GONE);
                 mItems.remove(position);
                 notifyItemRemoved(position);
+                if(mOnStateChangedListener != null) {
+                    mOnStateChangedListener.onDeleted();
+                }
             }
         }.execute(mItems.get(position));
     }
