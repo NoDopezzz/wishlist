@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 1;
     public static final int RESULT_ERROR_OPEN = 2;
 
+    private static final String SAVED_INSTANCE_IS_RESET = "SAVED_INSTANCE_IS_RESET";
+
     private BottomNavigationView mNavigationView;
 
     @Override
@@ -31,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mNavigationView = findViewById(R.id.navigation_activity_navigation_view);
-        mNavigationView.setSelectedItemId(R.id.navigation_item_movie);
+
         mNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -55,7 +57,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        createFragment(Content.MOVIE);
+
+        if(savedInstanceState == null || !savedInstanceState.getBoolean(SAVED_INSTANCE_IS_RESET)){
+            mNavigationView.setSelectedItemId(R.id.navigation_item_movie);
+            createFragment(Content.MOVIE);
+        }
     }
 
     private void createFragment(Content content){
@@ -63,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.navigation_activity_frame, fragment)
                 .commit();
+        Log.i("random", "createFragment");
     }
 
     @Override
@@ -70,10 +77,15 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE){
             if(resultCode == RESULT_ERROR_OPEN){
-                Log.i("ContentMovieFragment", "result");
                 Snackbar.make(findViewById(R.id.navigation_activity_frame), R.string.error_open, Snackbar.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(SAVED_INSTANCE_IS_RESET, true);
     }
 }
 

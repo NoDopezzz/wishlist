@@ -134,6 +134,7 @@ public class ContentTVFragment extends Fragment {
     private List<ImageResult.Image> mImages;
     private List<VideoResponse.Video> mVideos;
 
+    private Snackbar mSnackbar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -176,6 +177,8 @@ public class ContentTVFragment extends Fragment {
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if(mSnackbar != null && mSnackbar.isShown()) return;
+
                 if (oldScrollY - scrollY > 4 && !mIsFABShown){
                     animateFABShow();
                     mIsFABShown = true;
@@ -513,11 +516,10 @@ public class ContentTVFragment extends Fragment {
             public void onClick(View v) {
                 if(mIsSaved){
                     try {
-                        GeneralSingleton.getInstance().getInternalStorage().deleteImage(mId, Content.MOVIE.name());
                         mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_border_white_24dp);
 
                         DBItem item = new DBItem();
-                        item.setContent(Content.MOVIE.name());
+                        item.setContent(Content.TV.name());
                         item.setId(mId);
                         item.setTitle(mTVShow.getTitle());
                         item.setSubtitle(formYear(mTVShow.getDate()));
@@ -527,6 +529,7 @@ public class ContentTVFragment extends Fragment {
                             protected void onPostExecute(Void aVoid) {
                                 mIsSaved = false;
                                 showSnackbar(R.string.state_deleted);
+                                GeneralSingleton.getInstance().getInternalStorage().deleteImage(mId, Content.TV.name());
                             }
                         }.execute(item);
                     } catch(OutOfMemoryError e){
@@ -537,8 +540,6 @@ public class ContentTVFragment extends Fragment {
 
                 } else{
                     try {
-                        GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mId, IMAGE_URL_ENDPOINT_ORIGINAL + mTVShow.getUrlPoster(), Content.TV.name());
-
                         mFloatingActionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
 
                         DBItem item = new DBItem();
@@ -552,6 +553,7 @@ public class ContentTVFragment extends Fragment {
                             protected void onPostExecute(Void aVoid) {
                                 mIsSaved = true;
                                 showSnackbar(R.string.state_saved);
+                                GeneralSingleton.getInstance().getInternalStorage().saveToInternalStorage(mId, IMAGE_URL_ENDPOINT_ORIGINAL + mTVShow.getUrlPoster(), Content.TV.name());
                             }
                         }.execute(item);
                     } catch(OutOfMemoryError e){
@@ -637,6 +639,7 @@ public class ContentTVFragment extends Fragment {
 
     private void showSnackbar(int resId){
         if(getView() == null) return;
-        Snackbar.make(mFloatingActionButton, resId, Snackbar.LENGTH_LONG).show();
+        mSnackbar = Snackbar.make(mFloatingActionButton, resId, Snackbar.LENGTH_SHORT);
+        mSnackbar.show();
     }
 }

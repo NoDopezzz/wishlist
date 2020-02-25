@@ -41,6 +41,8 @@ public class ListFragment extends Fragment {
 
     private static final String ARG_CONTENT = "ARG_CONTENT";
 
+    private static final String SAVED_INSTANCE_CONTENT = "SAVED_INSTANCE_CONTENT";
+
     private Content mContent;
 
     private FloatingActionButton mAddButton;
@@ -94,10 +96,15 @@ public class ListFragment extends Fragment {
         });
 
         Bundle args = getArguments();
-        mContent = Content.MOVIE;
         if(args != null && args.getSerializable(ARG_CONTENT) != null){
             mContent = (Content)args.getSerializable(ARG_CONTENT);
         }
+
+        if(savedInstanceState != null && savedInstanceState.getSerializable(SAVED_INSTANCE_CONTENT) != null){
+            mContent = (Content)savedInstanceState.getSerializable(SAVED_INSTANCE_CONTENT);
+        }
+
+        Log.i("random", mContent.name());
 
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -279,5 +286,11 @@ public class ListFragment extends Fragment {
         if(mAdapter != null){
             mAdapter.clear();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(SAVED_INSTANCE_CONTENT, mContent);
     }
 }

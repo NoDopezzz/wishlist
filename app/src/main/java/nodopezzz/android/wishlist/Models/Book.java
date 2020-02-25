@@ -25,10 +25,6 @@ public class Book{
         @Expose
         private String mTitle;
 
-        @SerializedName("publishedDate")
-        @Expose
-        private String mPublishedDate;
-
         @SerializedName("description")
         @Expose
         private String mDescription;
@@ -36,10 +32,6 @@ public class Book{
         @SerializedName("authors")
         @Expose
         private List<String> mAuthors;
-
-        @SerializedName("categories")
-        @Expose
-        private List<String> mCategories;
 
         @SerializedName("publisher")
         @Expose
@@ -57,14 +49,6 @@ public class Book{
             mTitle = title;
         }
 
-        public String getPublishedDate() {
-            return mPublishedDate;
-        }
-
-        public void setPublishedDate(String publishedDate) {
-            mPublishedDate = publishedDate;
-        }
-
         public String getDescription() {
             return mDescription;
         }
@@ -79,14 +63,6 @@ public class Book{
 
         public void setAuthors(List<String> authors) {
             mAuthors = authors;
-        }
-
-        public List<String> getCategories() {
-            return mCategories;
-        }
-
-        public void setCategories(List<String> categories) {
-            mCategories = categories;
         }
 
         public ImageLinks getImageLinks() {
