@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -52,7 +53,7 @@ public class TMDBApi {
                 if(!originalHttpUrl.toString().contains("images") && !originalHttpUrl.toString().contains("videos")){
                     url = originalHttpUrl.newBuilder()
                             .addQueryParameter("api_key", API_KEY)
-                            .addQueryParameter("language", "ru")
+                            .addQueryParameter("language", Locale.getDefault().getCountry().toLowerCase())
                             .build();
                 } else {
                     url = originalHttpUrl.newBuilder()

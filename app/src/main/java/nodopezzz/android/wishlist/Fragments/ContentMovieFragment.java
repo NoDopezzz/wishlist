@@ -470,7 +470,7 @@ public class ContentMovieFragment extends Fragment {
         mNestedScrollView.setVisibility(View.VISIBLE);
 
         mDateView.setText(formDate(mMovie.getDate()));
-        mTimeView.setText(mMovie.getTime() + " мин");
+        mTimeView.setText(mMovie.getTime() + " " + getResources().getString(R.string.min));
         mRateView.setText(mMovie.getVoteAverage());
         mRateCountView.setText("(" + mMovie.getVoteCount() + ")");
         mOverviewView.setText(mMovie.getOverview());

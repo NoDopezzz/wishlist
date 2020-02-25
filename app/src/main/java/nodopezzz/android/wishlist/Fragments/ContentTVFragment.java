@@ -470,7 +470,7 @@ public class ContentTVFragment extends Fragment {
 
         mDateView.setText(formDate(mTVShow.getDate()));
         if(mTVShow.getTimes() != null && !mTVShow.getTimes().isEmpty()) {
-            mTimeView.setText(mTVShow.getTimes().get(0) + " мин");
+            mTimeView.setText(mTVShow.getTimes().get(0) + " " + getResources().getString(R.string.min));
         }
         mRateView.setText(mTVShow.getVoteAverage());
         mRateCountView.setText("(" + mTVShow.getVoteCount() + ")");
@@ -567,7 +567,19 @@ public class ContentTVFragment extends Fragment {
     private void updateUITV() throws Exception{
         mTVShowExtra.setVisibility(View.VISIBLE);
         mNumberSeasonsView.setText(mTVShow.getNumberOfSeasons());
-        mStatusView.setText(mTVShow.getStatus());
+        String status = "";
+        switch(mTVShow.getStatus()){
+            case "Returning Series":
+                status = getResources().getString(R.string.status_returning);
+                break;
+            case "Ended":
+                status = getResources().getString(R.string.status_ended);
+                break;
+            case "In Production":
+                status = getResources().getString(R.string.status_production);
+                break;
+        }
+        mStatusView.setText(status);
 
         mTVSeasonsLayout.setVisibility(View.VISIBLE);
         initSeasonsList();

@@ -129,15 +129,19 @@ public class ContentBookFragment extends Fragment {
 
                 StringBuilder authorsBuilder = new StringBuilder();
                 String authors = "";
-                for (int i = 0; i < mBook.getVolumeInfo().getAuthors().size(); i++) {
-                    authorsBuilder.append(mBook.getVolumeInfo().getAuthors().get(i)).append(", ");
+                if(mBook.getVolumeInfo().getAuthors() != null) {
+                    for (int i = 0; i < mBook.getVolumeInfo().getAuthors().size(); i++) {
+                        authorsBuilder.append(mBook.getVolumeInfo().getAuthors().get(i)).append(", ");
+                    }
                 }
                 if(authorsBuilder.length() > 0){
                     authors = authorsBuilder.substring(0, authorsBuilder.length() - 2);
                 }
 
                 mAuthorView.setText(authors);
-                mOverviewView.setText(mBook.getVolumeInfo().getDescription());
+                if(mBook.getVolumeInfo().getDescription() != null) {
+                    mOverviewView.setText(mBook.getVolumeInfo().getDescription().replaceAll("\\<.*?\\>", ""));
+                }
                 mPublisherView.setText(mBook.getVolumeInfo().getPublisher());
 
                 if(!mBook.getAccessInfo().getAccessViewStatus().equals("NONE")

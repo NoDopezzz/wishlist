@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Wish List</string>
+
+    <string name="item_movie">Фильмы</string>
+    <string name="item_tv">Сериалы</string>
+    <string name="item_book">Книги</string>
+
+    <string name="content_pictures">Кадры:</string>
+    <string name="content_cast">Актеры:</string>
+    <string name="content_seasons">Сезоны:</string>
+
+    <string name="content_book_date">Издание </string>
+    <string name="content_book_button_reader">Читать фрагмент</string>
+
+    <string name="budget">Бюджет:</string>
+    <string name="revenue">Сборы:</string>
+
+    <string name="status">Статус:</string>
+    <string name="seasons_number">Сезонов:</string>
+
+    <string name="episode_list_nothing">Ничего не найдено</string>
+
+    <string name="content_book_menu_marker">Сохранить</string>
+
+    <string name="error_saving">Произошла ошибка при сохранении</string>
+    <string name="state_saved">Добавлено в избранное</string>
+    <string name="state_deleted">Удалено из избранного</string>
+
+    <string name="error_open">Произошла ошибка при открытии</string>
+    <string name="search_request">Введите запрос</string>
+    <string name="read_fragment">Читать фрагмент</string>
+    <string name="min">мин</string>
+
+    <string name="status_returning">Продолжается</string>
+    <string name="status_ended">Завершен</string>
+    <string name="status_production">В производстве</string>
+</resources>

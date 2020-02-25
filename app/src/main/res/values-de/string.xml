@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Wish List</string>
+
+    <string name="item_movie">Filme</string>
+    <string name="item_tv">Fernsehshows</string>
+    <string name="item_book">Bücher</string>
+
+    <string name="content_pictures">Aufnahmen:</string>
+    <string name="content_cast">Besetzung:</string>
+    <string name="content_seasons">Jahreszeiten:</string>
+
+    <string name="content_book_date">Verleger</string>
+    <string name="content_book_button_reader">Fragment lesen</string>
+
+    <string name="budget">Budget:</string>
+    <string name="revenue">Einnahmen:</string>
+
+    <string name="status">Status:</string>
+    <string name="seasons_number">Jahreszeiten:</string>
+
+    <string name="episode_list_nothing">Nichts gefunden</string>
+
+    <string name="content_book_menu_marker">speichern</string>
+
+    <string name="error_saving">Beim Speichern ist ein Fehler aufgetreten</string>
+    <string name="state_saved">Zu den Favoriten hinzugefügt</string>
+    <string name="state_deleted">Aus den Favoriten entfernt</string>
+
+    <string name="error_open">Beim Öffnen ist ein Fehler aufgetreten</string>
+    <string name="search_request">Abfrage eingeben</string>
+    <string name="read_fragment">Fragment lesen</string>
+    <string name="min">min</string>
+
+    <string name="status_returning">Rückkehr</string>
+    <string name="status_ended">Beendet</string>
+    <string name="status_production">In Produktion</string>
+</resources>

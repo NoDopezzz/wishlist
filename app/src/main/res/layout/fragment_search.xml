@@ -62,7 +62,7 @@
             android:layout_marginTop="20dp"
             android:layout_below="@id/loupe_image"
 
-            android:text="Введите запрос"/>
+            android:text="@string/search_request"/>
     </RelativeLayout>
 
     <RelativeLayout

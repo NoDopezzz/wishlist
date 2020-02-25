@@ -1,8 +1,12 @@
 package nodopezzz.android.wishlist.Utils;
 
 import android.app.Application;
+import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Room;
+
+import java.util.Locale;
 
 import nodopezzz.android.wishlist.Database.Database;
 import nodopezzz.android.wishlist.MemoryUtils.IconCache;
@@ -11,6 +15,7 @@ import nodopezzz.android.wishlist.MemoryUtils.InternalStorage;
 public class GeneralSingleton extends Application {
 
     public static GeneralSingleton instance;
+    public static String LANGUAGE_CODE = "en";
 
     private IconCache mIconCache;
     private Database mDatabase;
@@ -27,6 +32,11 @@ public class GeneralSingleton extends Application {
 
     public static GeneralSingleton getInstance(){
         return instance;
+    }
+
+    public static void setLanguageCode(Context context){
+        LANGUAGE_CODE = Locale.getDefault().getISO3Country();
+        Log.i("random", "code: " + LANGUAGE_CODE);
     }
 
     public IconCache getIconCache(){

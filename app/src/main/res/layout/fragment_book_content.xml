@@ -125,7 +125,7 @@
                 android:textColor="@android:color/white"
                 android:visibility="gone"
 
-                android:text="Читать фрагмент"/>
+                android:text="@string/read_fragment"/>
 
             <RelativeLayout
                 android:id="@+id/content_book_progressbar"

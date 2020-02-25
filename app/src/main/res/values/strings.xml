@@ -1,30 +1,37 @@
 <resources>
     <string name="app_name">Wish List</string>
 
-    <string name="item_movie">Фильмы</string>
-    <string name="item_tv">Сериалы</string>
-    <string name="item_book">Книги</string>
+    <string name="item_movie">Movies</string>
+    <string name="item_tv">TV Shows</string>
+    <string name="item_book">Books</string>
 
-    <string name="content_pictures">Кадры:</string>
-    <string name="content_cast">Актеры:</string>
-    <string name="content_seasons">Сезоны:</string>
+    <string name="content_pictures">Footage:</string>
+    <string name="content_cast">Cast:</string>
+    <string name="content_seasons">Seasons:</string>
 
-    <string name="content_book_date">Издание </string>
-    <string name="content_book_button_reader">Читать фрагмент</string>
+    <string name="content_book_date">Publisher</string>
+    <string name="content_book_button_reader">Read fragment</string>
 
-    <string name="budget">Бюджет:</string>
-    <string name="revenue">Сборы:</string>
+    <string name="budget">Budget:</string>
+    <string name="revenue">Revenue:</string>
 
-    <string name="status">Статус:</string>
-    <string name="seasons_number">Сезонов:</string>
+    <string name="status">Status:</string>
+    <string name="seasons_number">Seasons:</string>
 
-    <string name="episode_list_nothing">Ничего не найдено</string>
+    <string name="episode_list_nothing">Nothing found</string>
 
-    <string name="content_book_menu_marker">Сохранить</string>
+    <string name="content_book_menu_marker">Save</string>
 
-    <string name="error_saving">Произошла ошибка при сохранении</string>
-    <string name="state_saved">Добавлено в избранное</string>
-    <string name="state_deleted">Удалено из избранного</string>
+    <string name="error_saving">Error occurred while saving</string>
+    <string name="state_saved">Added to favourites</string>
+    <string name="state_deleted">Removed from favourites </string>
 
-    <string name="error_open">Произошла ошибка при открытии</string>
+    <string name="error_open">Error occurred while opening</string>
+    <string name="search_request">Enter query</string>
+    <string name="read_fragment">Read fragment</string>
+    <string name="min">min</string>
+
+    <string name="status_returning">Returning</string>
+    <string name="status_ended">Ended</string>
+    <string name="status_production">In Production</string>
 </resources>
