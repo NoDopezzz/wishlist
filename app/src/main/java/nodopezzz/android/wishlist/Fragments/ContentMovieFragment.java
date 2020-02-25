@@ -131,6 +131,8 @@ public class ContentMovieFragment extends Fragment {
     private List<ImageResult.Image> mImages;
     private List<VideoResponse.Video> mVideos;
 
+    private Snackbar mSnackbar;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,6 +172,9 @@ public class ContentMovieFragment extends Fragment {
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+
+                if(mSnackbar != null && mSnackbar.isShown())return;
+
                 if (oldScrollY - scrollY > 4 && !mIsFABShown){
                     animateFABShow();
                     mIsFABShown = true;
@@ -246,7 +251,6 @@ public class ContentMovieFragment extends Fragment {
         TMDBApi.getInstance().getAdapter().getMovieImages(mId).enqueue(new Callback<ImageResult>() {
             @Override
             public void onResponse(Call<ImageResult> call, Response<ImageResult> response) {
-                Log.i("Retrofit", response.toString());
                 mImages = response.body().getImages();
                 getVideos("ru");
             }
@@ -629,6 +633,7 @@ public class ContentMovieFragment extends Fragment {
 
     private void showSnackbar(int resId){
         if(getView() == null) return;
-        Snackbar.make(mFloatingActionButton, resId, Snackbar.LENGTH_LONG).show();
+        mSnackbar = Snackbar.make(mFloatingActionButton, resId, Snackbar.LENGTH_SHORT);
+        mSnackbar.show();
     }
 }
