@@ -1,6 +1,7 @@
+<img src="https://github.com/NoDopezzz/wishlist/blob/master/images/icon.png" height="100" width="100" align="right">
+
 # wishlist
 Андроид приложение Wish List - Фильмы, Сериалы, Книги
-<img src="https://github.com/NoDopezzz/wishlist/blob/master/images/icon.png" height="100" width="100" align="right">
 
 # Скриншоты
 <p>
